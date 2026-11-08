@@ -28,6 +28,6 @@ test('LLM configuration is BYO-key with direct model discovery and optional adva
 
 test('model selection is a disabled dropdown until API key is entered and base URL is advanced-only',()=>{const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');const ui=readFileSync(new URL('../llm-ui.js',import.meta.url),'utf8');assert.match(html,/<select id="model" disabled>/);assert.match(html,/<details class="advanced-connection">/);assert.match(ui,/addEventListener\('input'/);assert.match(ui,/setTimeout\(loadModels,700\)/);assert.match(ui,/populateModels\(names\)/);});
 
-test('Gemini defaults avoid restricted legacy 2.5/2.0 models',()=>{const ui=readFileSync(new URL('../llm-ui.js',import.meta.url),'utf8');assert.match(app,/gemini:\{model:'gemini-3\\.8-flash'/);assert.match(ui,/gemini-3\\.8-flash/);assert.match(ui,/gemini-3\\.5-flash-lite/);assert.match(ui,/filter\(id=>!\/\^gemini-/);});
+test('Gemini defaults use rolling aliases and filter restricted legacy 2.5/2.0 models',()=>{const ui=readFileSync(new URL('../llm-ui.js',import.meta.url),'utf8');assert.match(app,/gemini:\{model:'gemini-flash-latest'/);assert.match(ui,/gemini-flash-latest/);assert.match(ui,/gemini-flash-lite-latest/);assert.match(ui,/filter\(id=>!\/\^gemini-\(\?:2\\\.0\|2\\\.5\)-\//);});
 
 test('provider defaults prefer rolling latest aliases where officially supported',()=>{assert.match(app,/openai:\{model:'chat-latest'/);assert.match(app,/gemini:\{model:'gemini-flash-latest'/);assert.match(app,/deepseek:\{model:'deepseek-flash'/);});
