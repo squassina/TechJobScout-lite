@@ -17,7 +17,8 @@ let debounce;
 let requestVersion=0;
 function baseUrl(){return usesAdvancedUrl()?($('baseUrl').value.trim()||defaults[provider()].base):defaults[provider()].base;}
 function status(message){$('settingsStatus').textContent=message;}
-function lockModel(message){const select=$('model');select.replaceChildren();const o=document.createElement('option');o.value='';o.textContent='Enter API key to load available models';select.append(o);select.disabled=true;$('modelHelp').textContent=message;}\nfunction showSuggested(message){
+function lockModel(message){const select=$('model');select.replaceChildren();const o=document.createElement('option');o.value='';o.textContent='Enter API key to load available models';select.append(o);select.disabled=true;$('modelHelp').textContent=message;}
+function showSuggested(message){
  const list=defaults[provider()].models,select=$('model');select.replaceChildren();
  select.disabled=!list.length;
  const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=list.length?'Choose a suggested model (live discovery unavailable)':'No models found — check your local endpoint';select.append(placeholder);
