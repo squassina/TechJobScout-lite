@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { words, hasTerm, safeHref } from '../src/core/text.js';
 import { locationAllowed, isLikelyRelevant, scoreJob } from '../src/jobs/matching.js';
+import { normalizeJobs, stripHtml } from '../src/ats/normalizers.js';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8');
 test('native ES module entrypoint',()=>{assert.match(html,/<script type="module" src="app.js"><\/script>/);assert.ok(readFileSync(new URL('../styles.css',import.meta.url),'utf8').length>1000);});
 test('text helpers normalize accents and reject unsafe URLs',()=>{assert.equal(words('Tecnologia Ágil'),'tecnologia agil');assert.equal(hasTerm('data science','Senior Data Science Lead'),true);assert.equal(safeHref('javascript:alert(1)'),'#');});
@@ -12,3 +13,7 @@ test('job description analysis requires explicit consent',()=>{assert.match(app,
 test('credentials are opt-in and ephemeral keys clear with session',()=>{assert.match(html,/<input type="checkbox" id="rememberKey">/);assert.doesNotMatch(html,/id="rememberKey" checked/);assert.match(app,/state\.sessionKeys=\{\}/);});
 test('Lite link and broad seniority defaults',()=>{assert.match(html,/github\.com\/squassina\/TechJobScout-lite/);assert.doesNotMatch(html,/value="[^"]*junior[^"]*"/);});
 test('all literal DOM references resolve',()=>{const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]));const refs=[...app.matchAll(/\$\('([^']+)'\)/g)].map(x=>x[1]);assert.deepEqual([...new Set(refs.filter(x=>!ids.has(x)&&x!=='jobToStar'))],[]);});
+
+test('ATS normalizers preserve published/updated dates and strip markup',()=>{const jobs=normalizeJobs('greenhouse',{jobs:[{id:1,title:'Engineer',absolute_url:'https://example.com/job',content:'<p>Build &amp; ship</p>',updated_at:'2026-01-02'}]},{company:'Acme',board:'acme'});assert.equal(jobs[0].createdAt,'2026-01-02');assert.equal(jobs[0].description,'Build & ship');assert.equal(stripHtml('<b>Role</b>'),'Role');});
+test('SmartRecruiters and Gupy pagination are not capped at the former 2,000 offset',()=>{assert.match(app,/offset<10000/);assert.match(app,/totalFound/);});
+test('ATS network requests have an abort timeout and bounded detail concurrency',()=>{assert.match(app,/new AbortController\\(\\)/);assert.match(app,/Math\\.min\\(5,selected\\.length\\)/);});

@@ -6,7 +6,7 @@ A static, browser-only tool for technology professionals across roles and senior
 ## Architecture
 - `index.html`: semantic UI and dialogs.
 - `styles.css`: responsive presentation.
-- `app.js`: UI orchestration and in-memory application state.\n- `src/core/text.js`: safe text and URL helpers.\n- `src/jobs/matching.js`: pure relevance, location and scoring functions.
+- `app.js`: UI orchestration and in-memory application state.\n- `src/core/text.js`: safe text and URL helpers.\n- `src/jobs/matching.js`: pure relevance, location and scoring functions.\n- `src/ats/normalizers.js`: ATS response normalization, HTML cleanup and published/updated date mapping.
 - Static deployment: GitHub Pages or any HTTPS static host.
 - No backend, database, account, analytics, telemetry, service worker or session persistence.
 

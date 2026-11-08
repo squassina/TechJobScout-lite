@@ -69,7 +69,7 @@ The export includes `AGENTS.md`, `CLAUDE.md`, `README.md`, `candidate-profile.js
 
 ## Development and validation
 
-The app remains static and uses native ES modules without a bundler. Validate all modules and run automated tests with:
+The app remains static and uses native ES modules without a bundler. ATS results are normalized with published/updated dates where available; Gupy and SmartRecruiters use bounded pagination, request timeouts and limited parallel detail fetches. Validate all modules and run automated tests with:
 
 ```bash
 npm run check\nnpm test
