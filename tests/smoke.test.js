@@ -16,4 +16,4 @@ test('all literal DOM references resolve',()=>{const ids=new Set([...html.matchA
 
 test('ATS normalizers preserve published/updated dates and strip markup',()=>{const jobs=normalizeJobs('greenhouse',{jobs:[{id:1,title:'Engineer',absolute_url:'https://example.com/job',content:'<p>Build &amp; ship</p>',updated_at:'2026-01-02'}]},{company:'Acme',board:'acme'});assert.equal(jobs[0].createdAt,'2026-01-02');assert.equal(jobs[0].description,'Build & ship');assert.equal(stripHtml('<b>Role</b>'),'Role');});
 test('SmartRecruiters and Gupy pagination are not capped at the former 2,000 offset',()=>{assert.match(app,/offset<10000/);assert.match(app,/totalFound/);});
-test('ATS network requests have an abort timeout and bounded detail concurrency',()=>{assert.match(app,/new AbortController\\(\\)/);assert.match(app,/Math\\.min\\(5,selected\\.length\\)/);});
+test('ATS network requests have an abort timeout and bounded detail concurrency',()=>{assert.match(app,/new AbortController\(\)/);assert.match(app,/Math\.min\(5,selected\.length\)/);});
