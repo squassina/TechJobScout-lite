@@ -10,8 +10,8 @@ const DEFAULT_BOARDS = [
  ['Anthropic','greenhouse','anthropic'],['Databricks','greenhouse','databricks'],['MongoDB','greenhouse','mongodb'],['Snowflake','greenhouse','snowflake'],['Elastic','greenhouse','elastic'],['Confluent','greenhouse','confluent'],['Nubank','greenhouse','nubank'],['CI&T','greenhouse','ciandt'],['GitLab','ashby','gitlab'],['Datadog','lever','datadog']
 ].map(([company,ats,board])=>({company,ats,board,enabled:true,default:true}));
 const PROVIDERS = {
- openai:{model:'gpt-4o-mini',base:'https://api.openai.com'},gemini:{model:'gemini-3.8-flash',base:'https://generativelanguage.googleapis.com'},deepseek:{model:'deepseek-chat',base:'https://api.deepseek.com'},kimi:{model:'kimi-k2.5',base:'https://api.moonshot.cn'},
- anthropic:{model:'claude-3-5-sonnet-latest',base:'https://api.anthropic.com'},ollama:{model:'llama3.1',base:'http://localhost:11434'},'openai-compatible':{model:'gpt-4o-mini',base:'http://localhost:4000'}
+ openai:{model:'chat-latest',base:'https://api.openai.com'},gemini:{model:'gemini-flash-latest',base:'https://generativelanguage.googleapis.com'},deepseek:{model:'deepseek-flash',base:'https://api.deepseek.com'},kimi:{model:'kimi-k2.5',base:'https://api.moonshot.cn'},
+ anthropic:{model:'claude-sonnet-5',base:'https://api.anthropic.com'},ollama:{model:'llama3.1',base:'http://localhost:11434'},'openai-compatible':{model:'gpt-4o-mini',base:'http://localhost:4000'}
 };
 const state={cv:'',profile:{name:'',target_roles:'',summary:'',skills:[],star_stories:[]},boards:DEFAULT_BOARDS.map(x=>({...x})),jobs:[],stories:[],provider:'openai',model:PROVIDERS.openai.model,baseUrl:PROVIDERS.openai.base,keys:{},sessionKeys:{},searchErrors:[],searched:false,aiConfigured:false};
 let toastTimer;
