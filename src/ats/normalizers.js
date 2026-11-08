@@ -1,10 +1,10 @@
 export function stripHtml(html='') {
- const source=String(html).replace(/<\\/\\s*(p|div|li|h[1-6]|section|article|tr)>/gi,'\\n').replace(/<br\\s*\\/?\\s*>/gi,'\\n');
+ const source=String(html).replace(/<\/\s*(p|div|li|h[1-6]|section|article|tr)>/gi,'\n').replace(/<br\s*\/?\s*>/gi,'\n');
  if(typeof DOMParser!=='undefined'){
   const doc=new DOMParser().parseFromString(source,'text/html');
-  return (doc.body.textContent||'').replace(/\\u00a0/g,' ').replace(/[ \\t]+/g,' ').replace(/ *\\n */g,'\\n').replace(/\\n{3,}/g,'\\n\\n').trim();
+  return (doc.body.textContent||'').replace(/\u00a0/g,' ').replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').replace(/\n{3,}/g,'\n\n').trim();
  }
- return source.replace(/<script[\\s\\S]*?<\\/script>/gi,' ').replace(/<style[\\s\\S]*?<\\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&nbsp;|&#160;|&#xA0;/gi,' ').replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&quot;/gi,'"').replace(/&#39;|&apos;/gi,"'").replace(/[ \\t]+/g,' ').replace(/ *\\n */g,'\\n').replace(/\\n{3,}/g,'\\n\\n').trim();
+ return source.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&nbsp;|&#160;|&#xA0;/gi,' ').replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&quot;/gi,'"').replace(/&#39;|&apos;/gi,"'").replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').replace(/\n{3,}/g,'\n\n').trim();
 }
 const dateOf=j=>j.createdAt||j.created_at||j.publishedAt||j.published_at||j.published||j.updatedAt||j.updated_at||j.releasedAt||j.released_at||null;
 export function normalizeJobs(ats,data,board) {
