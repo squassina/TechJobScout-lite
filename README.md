@@ -23,7 +23,7 @@ No build step or package manager is required. Serve the folder over localhost (b
 npx --yes http-server . -p 8000
 ```
 
-Open <http://localhost:8000>. The optional local static-file server uses Node.js; the application itself is plain HTML, CSS and JavaScript. Alternatively publish the root directory using GitHub Pages.
+Open <http://localhost:8000>. The optional local static-file server uses Node.js; the application itself is plain HTML, CSS and JavaScript. Alternatively, GitHub Pages is deployed by GitHub Actions after the `Static client validation` workflow succeeds on `master`. The deploy workflow also supports manual execution from the Actions tab. In repository settings, set **Pages → Build and deployment → Source: GitHub Actions**.
 
 ## Privacy model
 
