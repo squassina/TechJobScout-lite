@@ -3,10 +3,10 @@
  */
 const $ = id => document.getElementById(id);
 const defaults = {
- openai:{base:'https://api.openai.com',models:['gpt-4o-mini','gpt-4.1-mini','gpt-4.1','gpt-4o']},
- gemini:{base:'https://generativelanguage.googleapis.com',models:['gemini-3.8-flash','gemini-3.5-flash','gemini-3.5-flash-lite']},
- anthropic:{base:'https://api.anthropic.com',models:['claude-sonnet-4-5','claude-haiku-4-5','claude-opus-4-1']},
- deepseek:{base:'https://api.deepseek.com',models:['deepseek-chat','deepseek-reasoner']},
+ openai:{base:'https://api.openai.com',models:['chat-latest']},
+ gemini:{base:'https://generativelanguage.googleapis.com',models:['gemini-flash-latest','gemini-flash-lite-latest']},
+ anthropic:{base:'https://api.anthropic.com',models:['claude-sonnet-5']},
+ deepseek:{base:'https://api.deepseek.com',models:['deepseek-flash']},
  kimi:{base:'https://api.moonshot.cn',models:['kimi-k2.5','kimi-k2-turbo-preview']},
  ollama:{base:'http://localhost:11434',models:[]},
  'openai-compatible':{base:'http://localhost:4000',models:[]}
