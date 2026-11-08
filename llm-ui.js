@@ -3,10 +3,10 @@
  */
 const $ = id => document.getElementById(id);
 const defaults = {
- openai:{base:'https://api.openai.com',models:['gpt-4o-mini','gpt-4.1-mini','gpt-4.1','gpt-4o']},
- gemini:{base:'https://generativelanguage.googleapis.com',models:['gemini-2.5-flash','gemini-2.5-pro','gemini-2.0-flash']},
- anthropic:{base:'https://api.anthropic.com',models:['claude-sonnet-4-5','claude-haiku-4-5','claude-opus-4-1']},
- deepseek:{base:'https://api.deepseek.com',models:['deepseek-chat','deepseek-reasoner']},
+ openai:{base:'https://api.openai.com',models:['chat-latest']},
+ gemini:{base:'https://generativelanguage.googleapis.com',models:['gemini-flash-latest','gemini-flash-lite-latest']},
+ anthropic:{base:'https://api.anthropic.com',models:['claude-sonnet-5']},
+ deepseek:{base:'https://api.deepseek.com',models:['deepseek-flash']},
  kimi:{base:'https://api.moonshot.cn',models:['kimi-k2.5','kimi-k2-turbo-preview']},
  ollama:{base:'http://localhost:11434',models:[]},
  'openai-compatible':{base:'http://localhost:4000',models:[]}
@@ -48,7 +48,7 @@ async function loadModels(){
   const response=await fetch(url,{headers});if(!response.ok)throw new Error('HTTP '+response.status+' — verify the key, provider and browser CORS access.');
   const data=await response.json();let names;
   if(isLocal())names=(data.models||[]).map(x=>x.name);
-  else if(p==='gemini')names=(data.models||[]).filter(x=>(x.supportedGenerationMethods||[]).includes('generateContent')).map(x=>String(x.name||'').replace(/^models\//,''));
+  else if(p==='gemini')names=(data.models||[]).filter(x=>(x.supportedGenerationMethods||[]).includes('generateContent')).map(x=>String(x.name||'').replace(/^models\//,'')).filter(id=>!/^gemini-(?:2\.0|2\.5)-/.test(id));
   else names=(data.data||data.models||[]).map(x=>x.id||x.name).filter(Boolean);
   if(version!==requestVersion)return;if(!names.length)throw new Error('The provider returned no available models.');
   populateModels(names);status(names.length+' models loaded. Select the model you want to use.');
