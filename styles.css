@@ -45,3 +45,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .file-select span{color:#c8e9dc}
 .job-actions button:first-child{border-color:#26765a;color:#42f5c7}
 @media(max-width:760px){.setup-grid,.individual-file-list{grid-template-columns:1fr}.setup-actions{align-items:flex-start;flex-direction:column}.setup-actions>.row{width:100%;justify-content:flex-end}}
+
+/* User-managed model discovery and advanced local connection controls */
+.advanced-connection{grid-column:1/-1;border:1px solid #205943;border-radius:9px;padding:11px 13px;color:#b5d8ca;font-size:11px}.advanced-connection summary{cursor:pointer;font-weight:700}.advanced-connection label{margin-top:13px}.setup-grid select#model{width:100%;border:1px solid #205943;border-radius:8px;padding:10px 11px;font:13px "DM Sans";color:#e5fff6;background:#031f18}.setup-grid #loadModels{margin-top:8px}.setup-grid label small{display:block;margin-top:3px}#keyOwnership{margin:0 0 10px}.setup-grid #llmCostNote{grid-column:1/-1}

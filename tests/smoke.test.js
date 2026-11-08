@@ -23,3 +23,5 @@ test('AI setup is workflow step zero and CV uploads refresh profile plus search 
 test('job cards offer quick view and descriptions are normalized before scoring',()=>{assert.match(app,/data-quick-view/);assert.match(app,/quickViewJob/);assert.match(app,/description:stripHtml/);});
 test('individual export requires selecting specific files',()=>{assert.match(html,/id="individualFileList"/);assert.match(app,/downloadSelectedFiles/);assert.match(app,/data-export-file/);});
 test('HTML descriptions preserve paragraph boundaries and decode non-breaking spaces',()=>{const result=stripHtml('<p>P-351</p> <p>This role&nbsp;requires <strong>experience</strong>.</p>');assert.equal(result,'P-351\nThis role requires experience.');});
+
+test('LLM configuration is BYO-key with direct model discovery and optional advanced endpoints',()=>{const ui=readFileSync(new URL('../llm-ui.js',import.meta.url),'utf8');assert.match(html,/src="llm-ui.js"/);assert.match(ui,/\/v1\/models/);assert.match(ui,/v1beta\/models/);assert.match(ui,/TechJobScout does not provide or pay for LLM usage/);assert.match(ui,/ollama/);assert.match(ui,/LiteLLM Proxy/);assert.doesNotMatch(ui,/master key/i);});
