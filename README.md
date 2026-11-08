@@ -13,7 +13,7 @@ TechJobScout Lite is a static HTML/CSS/JavaScript application. It has no applica
 - Run explainable keyword/seniority/location fit scoring, filter and sort opportunities, inspect score components, preview cleaned job descriptions in-app and export matched jobs.
 - Prepare initial STAR drafts with a configured LLM after explicit per-request consent. Every generated story is marked as a draft for candidate verification.
 - Export an agent workspace as a ZIP or select individual files for download for Codex, Claude Code or compatible local agents.
-- Configure OpenAI, Gemini, Anthropic, DeepSeek, Moonshot Kimi, Ollama and OpenAI-compatible endpoints.
+- Configure your own OpenAI, Gemini, Anthropic, DeepSeek or Moonshot Kimi API key and load models available to that key into a dropdown.\n- Advanced users can connect their own LiteLLM Proxy, Ollama, LM Studio or other OpenAI-compatible local endpoint. TechJobScout does not operate a shared gateway or pay for model usage.
 
 ## Run locally
 
