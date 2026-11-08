@@ -1,4 +1,6 @@
-/* Model selection is populated only after the user supplies their own key. */
+/* Model selection is populated only after the user supplies their own key.
+ * TechJobScout does not provide or pay for LLM usage; advanced endpoints include LiteLLM Proxy.
+ */
 const $ = id => document.getElementById(id);
 const defaults = {
  openai:{base:'https://api.openai.com',models:['gpt-4o-mini','gpt-4.1-mini','gpt-4.1','gpt-4o']},
