@@ -45,7 +45,7 @@ jobs:
       - name: Assemble static site
         run: |
           mkdir -p site
-          cp index.html styles.css app.js site/
+          cp index.html styles.css app.js llm-ui.js site/
           cp -R src site/src
           touch site/.nojekyll
 

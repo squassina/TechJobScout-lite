@@ -31,3 +31,6 @@ test('model selection is a disabled dropdown until API key is entered and base U
 test('Gemini defaults use rolling aliases and filter restricted legacy 2.5/2.0 models',()=>{const ui=readFileSync(new URL('../llm-ui.js',import.meta.url),'utf8');assert.match(app,/gemini:\{model:'gemini-flash-latest'/);assert.match(ui,/gemini-flash-latest/);assert.match(ui,/gemini-flash-lite-latest/);assert.ok(ui.includes("filter(id=>!/^gemini-(?:2\\.0|2\\.5)-/"));});
 
 test('provider defaults prefer rolling latest aliases where officially supported',()=>{assert.match(app,/openai:\{model:'chat-latest'/);assert.match(app,/gemini:\{model:'gemini-flash-latest'/);assert.match(app,/deepseek:\{model:'deepseek-flash'/);});
+
+
+test('GitHub Pages artifact includes every browser entry module',()=>{const workflow=readFileSync(new URL('../.github/workflows/deploy-pages.yml',import.meta.url),'utf8');assert.match(workflow,/cp index\.html styles\.css app\.js llm-ui\.js site\//);});
