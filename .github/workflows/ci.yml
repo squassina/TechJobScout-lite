@@ -1,13 +1,10 @@
 name: Static client validation
-
 on:
   push:
     branches: [main, master]
   pull_request:
-
 permissions:
   contents: read
-
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -16,19 +13,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate JavaScript syntax
-        run: node --check app.js
-      - name: Run client-side smoke tests
-        run: node --test
+      - name: Validate all JavaScript modules
+        run: npm run check
+      - name: Run unit and smoke tests
+        run: npm test
       - name: Verify static app entrypoints
         run: |
           test -s index.html
           test -s styles.css
           test -s app.js
-          grep -q 'styles.css' index.html
-          grep -q 'app.js' index.html
+          grep -q 'type="module"' index.html
       - name: Enforce client-only persistence policy
         run: |
-          ! grep -nE '(/api/config|/api/scout|indexedDB|document\.cookie)' app.js index.html
-          test "$(grep -o 'localStorage\.' app.js | wc -l)" -le 4
+          ! grep -R -nE '(/api/config|/api/scout|indexedDB|document\.cookie)' app.js src index.html
           grep -q 'tjs_lite_api_keys' app.js

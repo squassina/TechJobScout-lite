@@ -1,0 +1,17 @@
+export function stripHtml(html='') {
+ const source=String(html);
+ if(typeof DOMParser!=='undefined'){const doc=new DOMParser().parseFromString(source,'text/html');return (doc.body.textContent||'').replace(/\s+/g,' ').trim();}
+ return source.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim();
+}
+const dateOf=j=>j.createdAt||j.created_at||j.publishedAt||j.published_at||j.published||j.updatedAt||j.updated_at||j.releasedAt||j.released_at||null;
+export function normalizeJobs(ats,data,board) {
+ let rows=[];const loc=x=>x||'Remote';
+ if(ats==='greenhouse')rows=(data.jobs||[]).map(j=>({title:j.title,location:loc(j.location?.name),url:j.absolute_url,description:stripHtml(j.content),id:j.id,createdAt:dateOf(j)}));
+ if(ats==='ashby')rows=(data.jobs||[]).map(j=>({title:j.title,location:loc(j.location),url:j.jobUrl,description:j.descriptionPlain||stripHtml(j.descriptionHtml),remote:j.isRemote,id:j.id,createdAt:dateOf(j)}));
+ if(ats==='lever')rows=(data||[]).map(j=>({title:j.text,location:loc(j.categories?.location),url:j.hostedUrl,description:[j.descriptionPlain||stripHtml(j.description),...(j.lists||[]).map(x=>(x.text||'')+' '+stripHtml(x.content)),j.additionalPlain||stripHtml(j.additional)].filter(Boolean).join('\n'),remote:String(j.workplaceType||'').toLowerCase()==='remote',id:j.id,createdAt:dateOf(j)}));
+ if(ats==='workable')rows=(data.jobs||[]).map(j=>({title:j.title,location:loc([j.city,j.state,j.country].filter(Boolean).join(', ')||j.locations?.[0]?.country),url:j.url||j.shortlink,description:[j.description,j.requirements,j.benefits].map(stripHtml).filter(Boolean).join('\n'),remote:j.telecommuting,id:j.shortcode||j.id,createdAt:dateOf(j)}));
+ if(ats==='smartrecruiters')rows=(data.content||[]).map(j=>({title:j.name,location:loc(j.location?.fullLocation||[j.location?.city,j.location?.region,j.location?.country].filter(Boolean).join(', ')),url:'https://jobs.smartrecruiters.com/'+board.board+'/'+j.id,description:'',id:j.id,createdAt:dateOf(j)}));
+ if(ats==='recruitee')rows=(data.offers||[]).filter(j=>!j.status||j.status==='published').map(j=>({title:j.title,location:loc(j.location||[j.city,j.country].filter(Boolean).join(', ')),url:j.careers_url||'https://'+board.board+'.recruitee.com/o/'+(j.slug||''),description:[j.description,j.requirements].map(stripHtml).filter(Boolean).join('\n'),remote:j.remote,id:j.id,createdAt:dateOf(j)}));
+ if(ats==='gupy')rows=(data.data||[]).map(j=>({title:j.name,location:loc([j.city,j.state,j.country].filter(Boolean).join(', ')),url:j.jobUrl||j.url,description:stripHtml(j.description),remote:String(j.workplaceType||'').toLowerCase()==='remote'||j.isRemoteWork,id:j.id,createdAt:dateOf(j)}));
+ return rows.filter(j=>j.title&&j.url).map(j=>({...j,company:board.company,ats:ats.toUpperCase(),board:board.board,description:j.description||''}));
+}

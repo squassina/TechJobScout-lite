@@ -29,7 +29,7 @@ Open <http://localhost:8000>. The optional local static-file server uses Node.js
 
 - CV contents, extracted profile, board additions, job results and STAR stories are held in JavaScript memory only.
 - The app does not write session data, search history, profile fields, or job results to LocalStorage, IndexedDB, cookies or a database.
-- Only API keys that the user explicitly chooses to save are stored in LocalStorage under `tjs_lite_api_keys`. Users can delete all saved keys from API settings. Do not use this feature on a shared or untrusted browser profile.
+- API keys remain in memory by default. Only explicit opt-in saves them in LocalStorage under `tjs_lite_api_keys`; browser LocalStorage is not encrypted. Users can delete saved keys from API settings.
 - Before an AI request that includes CV or job information, the app asks for explicit consent. Data is sent directly from the browser to the selected provider, under that provider's terms. The TechJobScout project does not proxy or retain the request.
 - Closing or reloading the tab clears session data. Exported files are created only when the user requests them and become the user's responsibility.
 - API keys entered into a provider request are transmitted directly to that provider. Browser-based access may require provider-side CORS support or browser access configuration.
@@ -49,7 +49,7 @@ Open <http://localhost:8000>. The optional local static-file server uses Node.js
 
 **CORS is a browser security boundary.** A public API can still be inaccessible to a static website if its server does not allow the website's origin. The app reports these source failures rather than pretending the search succeeded. Workday and other non-supported ATS boards can be added as manual HTTPS links. No CORS proxy or third-party scraping service is used because that would undermine the privacy and no-backend design.
 
-## Matching model
+A dedicated CV-to-job-description analysis is available. The CV and pasted JD are sent to the provider only after a separate explicit consent prompt.\n\nTarget roles and candidate skills contribute to relevance and scoring. An empty allowed-location list means unrestricted geography, and excluded locations always take precedence.\n\n## Matching model
 
 The initial client-side score is an explainable heuristic (0–100) with base points, title seniority, title and description keyword overlap, and location signals. Excluded title terms and location filters are applied before a result is shown. A score is a triage signal, not a hiring prediction. Always review the original posting and verify its current status.
 
@@ -65,14 +65,14 @@ Providers must allow browser-origin requests. Some providers disable CORS or req
 
 ## Local agent package
 
-The export includes `AGENTS.md`, `README.md`, `candidate-profile.json`, `jobs.json`, `star-stories.json`, and reusable prompts. The package is assembled in the browser using JSZip; individual file downloads are also available. Review all personal information and draft stories before sharing the exported package with a local agent or anyone else.
+The export includes `AGENTS.md`, `CLAUDE.md`, `README.md`, `candidate-profile.json`, `jobs.json`, `star-stories.json`, and reusable prompts. The package is assembled in the browser using JSZip; individual file downloads are also available. Review all personal information and draft stories before sharing the exported package with a local agent or anyone else.
 
 ## Development and validation
 
-There is no compilation or build step. Validate JavaScript syntax with:
+The app remains static and uses native ES modules without a bundler. ATS results are normalized with published/updated dates where available; Gupy and SmartRecruiters use bounded pagination, request timeouts and limited parallel detail fetches. Validate all modules and run automated tests with:
 
 ```bash
-node --check app.js
+npm run check\nnpm test
 ```
 
 Run the application through a static HTTP server and test each configured ATS board, since external APIs and CORS policies are outside the repository's control.

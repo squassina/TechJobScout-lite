@@ -5,6 +5,6 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "check": "node --check app.js"
+    "check": "node --check app.js && node --check src/core/text.js && node --check src/jobs/matching.js && node --check src/ats/normalizers.js"
   }
 }

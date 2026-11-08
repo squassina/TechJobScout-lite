@@ -1,0 +1,4 @@
+export function words(value) { return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+export function hasTerm(term, value) { const token=words(term).trim(); if(!token)return false; const escaped=token.replace(/[.*+?^$()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s+'); return new RegExp('(^|[^a-z0-9])'+escaped+'([^a-z0-9]|$)','i').test(words(value)); }
+export function esc(value='') { return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+export function safeHref(raw) { try { const url=new URL(String(raw||'')); return url.protocol==='https:'?url.href:'#'; } catch { return '#'; } }
