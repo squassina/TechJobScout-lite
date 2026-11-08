@@ -18,3 +18,8 @@ test('ATS normalizers preserve published/updated dates and strip markup',()=>{co
 test('SmartRecruiters and Gupy pagination are not capped at the former 2,000 offset',()=>{assert.match(app,/offset<10000/);assert.match(app,/totalFound/);});
 test('agent package uses the selected language for exported instructions and prompts',()=>{assert.match(app,/localizedReadme/);assert.match(app,/language==='pt-BR'/);assert.match(app,/prompts\['01-job-search\.md'\]/);});
 test('ATS network requests have an abort timeout and bounded detail concurrency',()=>{assert.match(app,/new AbortController\(\)/);assert.match(app,/Math\.min\(5,selected\.length\)/);});
+
+test('AI setup is workflow step zero and CV uploads refresh profile plus search criteria',()=>{assert.match(html,/data-tab="setup"/);assert.match(html,/id="panel-setup"/);assert.match(app,/refreshProfileFromCv/);assert.match(app,/search_preferences/);});
+test('job cards offer quick view and descriptions are normalized before scoring',()=>{assert.match(app,/data-quick-view/);assert.match(app,/quickViewJob/);assert.match(app,/description:stripHtml/);});
+test('individual export requires selecting specific files',()=>{assert.match(html,/id="individualFileList"/);assert.match(app,/downloadSelectedFiles/);assert.match(app,/data-export-file/);});
+test('HTML descriptions preserve paragraph boundaries and decode non-breaking spaces',()=>{const result=stripHtml('<p>P-351</p> <p>This role&nbsp;requires <strong>experience</strong>.</p>');assert.equal(result,'P-351\nThis role requires experience.');});
