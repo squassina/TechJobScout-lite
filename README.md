@@ -7,12 +7,12 @@ TechJobScout Lite is a static HTML/CSS/JavaScript application. It has no applica
 ## Features
 
 - Import PDF, TXT or Markdown CVs, or paste resume text. PDF extraction uses PDF.js in the browser.
-- Build an editable candidate profile and extract a conservative set of skill signals locally.
+- Configure an LLM in Step 0, then extract a structured candidate profile and refresh search preferences whenever a new CV is uploaded (with explicit per-upload consent); local extraction remains available as a fallback.
 - Search public job-board APIs for Greenhouse, Ashby, Lever, Workable, SmartRecruiters, Recruitee and Gupy.
 - Add company boards manually, including manual HTTPS links for Workday and other platforms.
-- Run explainable keyword/seniority/location fit scoring, filter and sort opportunities, inspect score components and export matched jobs.
+- Run explainable keyword/seniority/location fit scoring, filter and sort opportunities, inspect score components, preview cleaned job descriptions in-app and export matched jobs.
 - Prepare initial STAR drafts with a configured LLM after explicit per-request consent. Every generated story is marked as a draft for candidate verification.
-- Export an agent workspace as a ZIP or individual files for Codex, Claude Code or compatible local agents.
+- Export an agent workspace as a ZIP or select individual files for download for Codex, Claude Code or compatible local agents.
 - Configure OpenAI, Gemini, Anthropic, DeepSeek, Moonshot Kimi, Ollama and OpenAI-compatible endpoints.
 
 ## Run locally
@@ -49,7 +49,7 @@ Open <http://localhost:8000>. The optional local static-file server uses Node.js
 
 **CORS is a browser security boundary.** A public API can still be inaccessible to a static website if its server does not allow the website's origin. The app reports these source failures rather than pretending the search succeeded. Workday and other non-supported ATS boards can be added as manual HTTPS links. No CORS proxy or third-party scraping service is used because that would undermine the privacy and no-backend design.
 
-A dedicated CV-to-job-description analysis is available. The CV and pasted JD are sent to the provider only after a separate explicit consent prompt.\n\nTarget roles and candidate skills contribute to relevance and scoring. An empty allowed-location list means unrestricted geography, and excluded locations always take precedence.\n\n## Matching model
+CV upload in Step 0 uses the selected LLM to update both candidate fields and search preferences. Every upload requires explicit consent before the CV is sent to the provider; declining uses local extraction instead. A dedicated CV-to-job-description analysis is also available. The CV and pasted JD are sent to the provider only after a separate explicit consent prompt.\n\nTarget roles and candidate skills contribute to relevance and scoring. An empty allowed-location list means unrestricted geography, and excluded locations always take precedence.\n\n## Matching model
 
 The initial client-side score is an explainable heuristic (0–100) with base points, title seniority, title and description keyword overlap, and location signals. Excluded title terms and location filters are applied before a result is shown. A score is a triage signal, not a hiring prediction. Always review the original posting and verify its current status.
 
