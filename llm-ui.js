@@ -17,7 +17,7 @@ let debounce;
 let requestVersion=0;
 function baseUrl(){return usesAdvancedUrl()?($('baseUrl').value.trim()||defaults[provider()].base):defaults[provider()].base;}
 function status(message){$('settingsStatus').textContent=message;}
-function showSuggested(message){
+function lockModel(message){const select=$('model');select.replaceChildren();const o=document.createElement('option');o.value='';o.textContent='Enter API key to load available models';select.append(o);select.disabled=true;$('modelHelp').textContent=message;}\nfunction showSuggested(message){
  const list=defaults[provider()].models,select=$('model');select.replaceChildren();
  select.disabled=!list.length;
  const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent=list.length?'Choose a suggested model (live discovery unavailable)':'No models found — check your local endpoint';select.append(placeholder);
@@ -34,7 +34,7 @@ function populateModels(models){
 async function loadModels(){
  const p=provider(),key=$('apiKey').value.trim(),base=baseUrl().replace(/\/$/,'');
  const version=++requestVersion,button=$('loadModels');
- if(!key&&!isLocal()&&!isCustom()){showSuggested('Enter your API key to load available models.');status('Enter your API key to discover available models.');return;}
+ if(!key&&!isLocal()&&!isCustom()){lockModel('Enter your API key to discover models available to your account.');status('Enter your API key to discover available models.');return;}
  button.disabled=true;button.textContent='Loading…';$('model').disabled=true;
  try{
   let url,headers={Accept:'application/json'};
@@ -61,12 +61,12 @@ function initModelUi(){
  $('provider').addEventListener('change',()=>{updateProviderUi();});
  $('apiKey').addEventListener('input',()=>{
   clearTimeout(debounce);const key=$('apiKey').value.trim();$('loadModels').disabled=!key&&!usesAdvancedUrl();
-  if(!key&&!usesAdvancedUrl()){showSuggested('Enter your API key to load available models.');return;}
+  if(!key&&!usesAdvancedUrl()){lockModel('Enter your API key to load available models.');return;}
   $('model').disabled=true;$('modelHelp').textContent='Waiting for API key entry to finish…';debounce=setTimeout(loadModels,700);
  });
  $('loadModels').addEventListener('click',loadModels);
  $('baseUrl').addEventListener('change',()=>{if(usesAdvancedUrl())loadModels();});
- const key=$('apiKey').value.trim();if(key||isLocal()||isCustom())loadModels();else showSuggested('Enter your API key to load available models.');
+ const key=$('apiKey').value.trim();if(key||isLocal()||isCustom())loadModels();else lockModel('Enter your API key to load available models.');
  $('loadModels').disabled=!key&&!usesAdvancedUrl();
 }
 initModelUi();
