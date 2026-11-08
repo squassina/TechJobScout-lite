@@ -1,7 +1,8 @@
 import { words, hasTerm } from '../core/text.js';
 export function locationAllowed(location,c) {
- if(!c.allowed_locations.length||!location)return true;
+ if(!location)return true;
  const s=words(location); if(c.excluded_locations.some(x=>hasTerm(x,s)))return false;
+ if(!c.allowed_locations.length)return true;
  const allowed=c.allowed_locations.filter(x=>!['remote','anywhere','worldwide','global'].includes(words(x)));
  const remote=c.allowed_locations.some(x=>['remote','anywhere','worldwide','global'].includes(words(x)));
  return (remote&&['remote','worldwide','global'].some(x=>hasTerm(x,s)))||allowed.some(x=>hasTerm(x,s));
