@@ -1,0 +1,18 @@
+# Local secrets and credentials
+.env
+.env.*
+*.key
+
+# Personal data and generated exports
+cv.*
+candidate-profile.json
+jobs.json
+star-stories.json
+techjobscout-local-agent.zip
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

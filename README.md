@@ -1,0 +1,82 @@
+# TechJobScout Lite
+
+**Browser-only job discovery, CV matching, STAR preparation and local-agent export.**
+
+TechJobScout Lite is a static HTML/CSS/JavaScript application. It has no application server, Python runtime, database, account system or telemetry endpoint. Host the repository on GitHub Pages or any static HTTPS host.
+
+## Features
+
+- Import PDF, TXT or Markdown CVs, or paste resume text. PDF extraction uses PDF.js in the browser.
+- Build an editable candidate profile and extract a conservative set of skill signals locally.
+- Search public job-board APIs for Greenhouse, Ashby, Lever, Workable, SmartRecruiters, Recruitee and Gupy.
+- Add company boards manually, including manual HTTPS links for Workday and other platforms.
+- Run explainable keyword/seniority/location fit scoring, filter and sort opportunities, inspect score components and export matched jobs.
+- Prepare initial STAR drafts with a configured LLM after explicit per-request consent. Every generated story is marked as a draft for candidate verification.
+- Export an agent workspace as a ZIP or individual files for Codex, Claude Code or compatible local agents.
+- Configure OpenAI, Gemini, Anthropic, DeepSeek, Moonshot Kimi, Ollama and OpenAI-compatible endpoints.
+
+## Run locally
+
+No build step or package manager is required. Serve the folder over localhost (browser APIs and cross-origin ATS requests are more reliable over HTTP(S) than `file://`):
+
+```bash
+npx --yes http-server . -p 8000
+```
+
+Open <http://localhost:8000>. The optional local static-file server uses Node.js; the application itself is plain HTML, CSS and JavaScript. Alternatively publish the root directory using GitHub Pages.
+
+## Privacy model
+
+- CV contents, extracted profile, board additions, job results and STAR stories are held in JavaScript memory only.
+- The app does not write session data, search history, profile fields, or job results to LocalStorage, IndexedDB, cookies or a database.
+- Only API keys that the user explicitly chooses to save are stored in LocalStorage under `tjs_lite_api_keys`. Users can delete all saved keys from API settings. Do not use this feature on a shared or untrusted browser profile.
+- Before an AI request that includes CV or job information, the app asks for explicit consent. Data is sent directly from the browser to the selected provider, under that provider's terms. The TechJobScout project does not proxy or retain the request.
+- Closing or reloading the tab clears session data. Exported files are created only when the user requests them and become the user's responsibility.
+- API keys entered into a provider request are transmitted directly to that provider. Browser-based access may require provider-side CORS support or browser access configuration.
+
+## ATS coverage and limitations
+
+| ATS | Browser integration | Notes |
+|---|---|---|
+| Greenhouse | Public job-board API | Board slug required |
+| Ashby | Public posting API | Board name required |
+| Lever | Public postings API | Site slug required |
+| Workable | Public widget API | Account slug required |
+| SmartRecruiters | Public postings API | Board/company ID; detail fetch is best-effort |
+| Recruitee | Public offers API | Company subdomain required |
+| Gupy | Public jobs API | Numeric company ID; paginated |
+| Workday / other | Manual link | External search/open only; no scraping proxy |
+
+**CORS is a browser security boundary.** A public API can still be inaccessible to a static website if its server does not allow the website's origin. The app reports these source failures rather than pretending the search succeeded. Workday and other non-supported ATS boards can be added as manual HTTPS links. No CORS proxy or third-party scraping service is used because that would undermine the privacy and no-backend design.
+
+## Matching model
+
+The initial client-side score is an explainable heuristic (0–100) with base points, title seniority, title and description keyword overlap, and location signals. Excluded title terms and location filters are applied before a result is shown. A score is a triage signal, not a hiring prediction. Always review the original posting and verify its current status.
+
+## AI providers
+
+- OpenAI: Chat Completions-compatible endpoint.
+- Gemini: `generateContent` API.
+- Anthropic: Messages API with browser access header.
+- Ollama: local `/api/chat` endpoint.
+- OpenAI-compatible: custom endpoint for compatible services such as LiteLLM or llama.cpp.
+
+Providers must allow browser-origin requests. Some providers disable CORS or require additional account settings. Local Ollama requires its server to allow the browser origin. API keys are never embedded in the repository.
+
+## Local agent package
+
+The export includes `AGENTS.md`, `README.md`, `candidate-profile.json`, `jobs.json`, `star-stories.json`, and reusable prompts. The package is assembled in the browser using JSZip; individual file downloads are also available. Review all personal information and draft stories before sharing the exported package with a local agent or anyone else.
+
+## Development and validation
+
+There is no compilation or build step. Validate JavaScript syntax with:
+
+```bash
+node --check app.js
+```
+
+Run the application through a static HTTP server and test each configured ATS board, since external APIs and CORS policies are outside the repository's control.
+
+## License
+
+See [LICENSE](LICENSE).
