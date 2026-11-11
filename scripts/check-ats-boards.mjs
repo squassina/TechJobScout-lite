@@ -30,8 +30,8 @@ const results = await Promise.all(directBoards.map(async board => {
     const jobs = normalizeJobs(board.ats, payload, board);
     return {
       company: board.company, ats: board.ats, status: response.status, elapsedMs,
-      ok: inspection.usable > 0, returned: inspection.count, usable: inspection.usable,
-      normalized: jobs.length, warning: inspection.reason || (inspection.count === 0 ? 'Board responded successfully but currently returned zero jobs' : null),
+      ok: inspection.count === 0 || (inspection.usable > 0 && jobs.length > 0), returned: inspection.count, usable: inspection.usable,
+      normalized: jobs.length, warning: inspection.count === 0 ? 'Board responded successfully but currently returned zero jobs' : inspection.reason,
       url
     };
   } catch (error) {
