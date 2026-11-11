@@ -51,7 +51,22 @@ Open <http://localhost:8000>. The optional local static-file server uses Node.js
 
 CV upload in Step 0 uses the selected LLM to update both candidate fields and search preferences. Every upload requires explicit consent before the CV is sent to the provider; declining uses local extraction instead. A dedicated CV-to-job-description analysis is also available. The CV and pasted JD are sent to the provider only after a separate explicit consent prompt.\n\nTarget roles and candidate skills contribute to relevance and scoring. An empty allowed-location list means unrestricted geography, and excluded locations always take precedence.\n\n## Matching model
 
-The initial client-side score is an explainable heuristic (0–100) with base points, title seniority, title and description keyword overlap, and location signals. Excluded title terms and location filters are applied before a result is shown. A score is a triage signal, not a hiring prediction. Always review the original posting and verify its current status.
+The Fit Score is an evidence-based assessment (0–100), not a hiring prediction. It evaluates six dimensions:
+
+| Criterion | Weight |
+|---|---:|
+| Technical and functional skills | 25% |
+| Experience and responsibilities | 25% |
+| Target role alignment | 15% |
+| Seniority | 15% |
+| Industry and business context | 10% |
+| Education and certifications | 10% |
+
+Each criterion is assessed against information available in both the job posting and the candidate profile. Criteria without enough evidence are marked **Unknown** and excluded from the score denominator; they are not treated as a match or a mismatch. The displayed **Assessment Coverage** indicates how much of the weighted model could be evaluated. As a result, a Fit Score should always be read together with its coverage and the supporting job/CV evidence.
+
+Eligibility is reported separately from Fit Score. Location and work-modality preferences can be compared when the candidate has supplied them. Work authorization and language requirements remain unconfirmed unless the available profile provides sufficient evidence. An unknown eligibility status is not a rejection.
+
+Jobs are not hidden solely because a location preference is unmet; review the eligibility indicators before deciding whether to apply. Excluded title terms remain a search filter. Always review the original posting and verify its current status.
 
 ## AI providers
 
@@ -72,7 +87,8 @@ The export includes `AGENTS.md`, `CLAUDE.md`, `README.md`, `candidate-profile.js
 The app remains static and uses native ES modules without a bundler. ATS results are normalized with published/updated dates where available; Gupy and SmartRecruiters use bounded pagination, request timeouts and limited parallel detail fetches. Validate all modules and run automated tests with:
 
 ```bash
-npm run check\nnpm test
+npm run check
+npm test
 ```
 
 Run the application through a static HTTP server and test each configured ATS board, since external APIs and CORS policies are outside the repository's control.
