@@ -8,7 +8,17 @@ import { stripHtml, normalizeJobs } from './src/ats/normalizers.js';
 const $ = id => document.getElementById(id);
 const ATS = ['greenhouse','ashby','lever','workable','smartrecruiters','recruitee','gupy'];
 const DEFAULT_BOARDS = [
- ['Anthropic','greenhouse','anthropic'],['Databricks','greenhouse','databricks'],['MongoDB','greenhouse','mongodb'],['Snowflake','greenhouse','snowflake'],['Elastic','greenhouse','elastic'],['Confluent','greenhouse','confluent'],['Nubank','greenhouse','nubank'],['CI&T','greenhouse','ciandt'],['GitLab','ashby','gitlab'],['Datadog','lever','datadog']
+ // Board identifiers are taken from each company's public careers URL, not guessed from its name.
+ ['Anthropic','greenhouse','anthropic'],
+ ['Databricks','greenhouse','databricks'],
+ ['MongoDB','greenhouse','mongodb'],
+ ['Snowflake','manual','https://careers.snowflake.com/us/en'],
+ ['Elastic','greenhouse','elastic'],
+ ['Confluent','ashby','confluent'],
+ ['Nubank','ashby','nubank'],
+ ['CI&T','lever','ciandt'],
+ ['GitLab','greenhouse','gitlab'],
+ ['Datadog','greenhouse','datadog']
 ].map(([company,ats,board])=>({company,ats,board,enabled:true,default:true}));
 const PROVIDERS = {
  openai:{model:'chat-latest',base:'https://api.openai.com'},gemini:{model:'gemini-flash-latest',base:'https://generativelanguage.googleapis.com'},deepseek:{model:'deepseek-flash',base:'https://api.deepseek.com'},kimi:{model:'kimi-k2.5',base:'https://api.moonshot.cn'},
@@ -87,13 +97,13 @@ async function runSearch(){
  state.jobs=[];state.searchErrors=[];state.searched=true;currentJobsPage=1;renderBoardErrors();renderJobs();$('runSearch').disabled=true;$('runSearch').textContent='Searching…';$('searchStatus').textContent='Contacting public job-board APIs…';$('progressBar').style.width='5%';
  let completed=0,success=0;
  try{
-  const settled=await Promise.all(targets.map(async b=>{try{if(b.ats==='manual')return {board:b,jobs:[],manual:true};const jobs=await fetchBoard(b,signal);success++;return {board:b,jobs};}catch(e){if(signal.aborted)throw e;state.searchErrors.push({company:b.company,ats:b.ats,error:e.message});return {board:b,jobs:[],error:e.message};}finally{completed++;if(isSessionOperationCurrent(operation)){$('progressBar').style.width=`${Math.round(completed/targets.length*100)}%`;$('searchStatus').textContent=`Checked ${completed} of ${targets.length} boards…`;}}}));
+  const settled=await Promise.all(targets.map(async b=>{try{if(b.ats==='manual')return {board:b,jobs:[],manual:true};const jobs=await fetchBoard(b,signal);success++;return {board:b,jobs};}catch(e){if(signal.aborted)throw e;const message=e.message==='HTTP 404'?'HTTP 404 — board not found. Verify the ATS and public board slug.':e.message==='HTTP 403'?'HTTP 403 — access denied by the source.':e.message;state.searchErrors.push({company:b.company,ats:b.ats,error:message});return {board:b,jobs:[],error:message};}finally{completed++;if(isSessionOperationCurrent(operation)){$('progressBar').style.width=`${Math.round(completed/targets.length*100)}%`;$('searchStatus').textContent=`Checked ${completed} of ${targets.length} boards…`;}}}));
   if(!isSessionOperationCurrent(operation))return;
   renderBoardErrors();
   const detailStats=settled.reduce((sum,r)=>{const s=r.jobs?.detailStats;if(s){sum.requested+=s.requested;sum.analyzed+=s.analyzed;sum.failed+=s.failed;sum.skipped+=s.skipped;}return sum;},{requested:0,analyzed:0,failed:0,skipped:0});
   let combined=[];for(const r of settled){if(r.manual)continue;for(const j of r.jobs){if(!isLikelyRelevant(j,currentCriteria(),state.profile))continue;const enriched=enrichJob(j);if(enriched.score>=currentCriteria().min_score)combined.push(enriched);}}
   const seen=new Set();state.jobs=combined.filter(j=>{const k=jobKey(j);if(seen.has(k))return false;seen.add(k);return true;}).sort((a,b)=>b.score-a.score);
-  $('jobCount').textContent=state.jobs.length;$('boardSuccess').textContent=`${success} / ${targets.filter(x=>x.ats!=='manual').length}`;$('searchStatus').textContent=state.searchErrors.length?`${state.searchErrors.length} board(s) could not be queried. CORS or network restrictions may apply.`:'Search completed.';$('exportJobs').disabled=!state.jobs.length;$('resultsMeta').textContent=`${state.jobs.length} roles · ${state.searchErrors.length} source errors · ${detailStats.analyzed} SmartRecruiters descriptions analyzed${detailStats.failed?`, ${detailStats.failed} failed`:''}${detailStats.skipped?`, ${detailStats.skipped} not fetched (200 limit)`:''} · results remain in this tab`;renderJobs();if(!state.jobs.length)toast('No matching roles found. Review source errors or broaden filters.');else toast(`${state.jobs.length} matching opportunities found.`);
+  $('jobCount').textContent=state.jobs.length;$('boardSuccess').textContent=`${success} / ${targets.filter(x=>x.ats!=='manual').length}`;$('searchStatus').textContent=state.searchErrors.length?`${state.searchErrors.length} board(s) could not be queried. Review each diagnostic for an invalid board slug, access restriction or network/CORS issue.`:'Search completed.';$('exportJobs').disabled=!state.jobs.length;$('resultsMeta').textContent=`${state.jobs.length} roles · ${state.searchErrors.length} source errors · ${detailStats.analyzed} SmartRecruiters descriptions analyzed${detailStats.failed?`, ${detailStats.failed} failed`:''}${detailStats.skipped?`, ${detailStats.skipped} not fetched (200 limit)`:''} · results remain in this tab`;renderJobs();if(!state.jobs.length)toast('No matching roles found. Review source errors or broaden filters.');else toast(`${state.jobs.length} matching opportunities found.`);
  }catch(error){if(!signal.aborted)toast(error.message);}
  finally{finishSessionOperation(operation);if(activeSearchOperation===operation){activeSearchOperation=null;$('runSearch').disabled=false;$('runSearch').textContent='Search selected boards →';}}
 }
