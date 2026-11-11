@@ -147,3 +147,8 @@ test('remote modality is unknown unless candidate work-mode preferences are expl
  assert.equal(unknown.eligibility.modality.status,'unknown');
  assert.equal(matched.eligibility.modality.status,'met');
 });
+
+
+test('P2 README documents the evidence-based Fit Score, coverage and separate eligibility',()=>{const readme=readFileSync(new URL('../README.md',import.meta.url),'utf8');assert.match(readme,/evidence-based assessment/);assert.match(readme,/Assessment Coverage/);assert.match(readme,/Eligibility is reported separately from Fit Score/);assert.doesNotMatch(readme,/initial client-side score.*base points/i);});
+
+test('P2 Local agent screen focuses on workspace review and export, with session clearing de-emphasized',()=>{const panel=html.slice(html.indexOf('id="panel-agent"'),html.indexOf('<footer'));assert.match(panel,/Build your agent workspace/);assert.match(panel,/Workspace files/);assert.match(panel,/Export workspace/);assert.match(panel,/agent-export-summary/);assert.match(panel,/agent-privacy-note/);assert.match(panel,/<details class="agent-session-details">/);assert.match(panel,/id="clearSession"/);assert.doesNotMatch(panel,/<div class="card compact"><div class="card-title">Session controls/);for(const file of ['AGENTS.md','CLAUDE.md','candidate-profile.json','jobs.json','star-stories.json','README.md','prompts/01-job-search.md','prompts/02-role-analysis.md','prompts/03-interview-star.md','prompts/04-application-plan.md'])assert.ok(panel.includes('data-preview-file="'+file+'"'),'missing '+file);});
