@@ -25,7 +25,7 @@ jobs:
           grep -q 'type="module"' index.html
       - name: Enforce client-only persistence policy
         run: |
-          ! grep -R -nE '(/api/config|/api/scout|indexedDB|document\\.cookie)' app.js src index.html
+          ! grep -R -nE '(/api/config|/api/scout|indexedDB|document\.cookie)' app.js src index.html
           grep -q 'tjs_lite_api_keys' app.js
       - name: Install Playwright browser
         run: |
