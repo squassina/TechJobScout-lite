@@ -190,3 +190,8 @@ test('job board editor dialog edits company, ATS and slug without changing enabl
 
 
 test('each workflow step has consistent previous/next footer navigation',()=>{const expected=[['setup',null,'profile'],['profile','setup','search'],['search','profile','star'],['star','search','agent'],['agent','star',null]];for(const [step,previous,next] of expected){const start=html.indexOf('id="panel-'+step+'"'),end=html.indexOf('</section>',start),section=html.slice(start,end);assert.match(section,/class="step-navigation"/);if(previous)assert.match(section,new RegExp('data-step-goto="'+previous+'"'));else assert.match(section,/class="step-navigation-end"|<span><\/span>/);if(next)assert.match(section,new RegExp('data-step-goto="'+next+'"'));else assert.match(section,/Final step/);}assert.match(app,/data-step-goto/);assert.match(css,/\.step-navigation/);});
+
+
+test('every configured board renders a careers link using custom URL or ATS public board URL',()=>{assert.match(app,/function boardCareersUrl\(board\)/);for(const host of ['job-boards.greenhouse.io','jobs.ashbyhq.com','jobs.lever.co','apply.workable.com','careers.smartrecruiters.com'])assert.ok(app.includes(host));assert.match(app,/class="board-careers-link"/);assert.match(app,/boardCareersUrl\(b\)/);assert.match(app,/rel="noopener noreferrer"/);});
+
+test('users can add and edit optional HTTPS careers URLs for custom boards',()=>{for(const id of ['newCareersUrl','editCareersUrl'])assert.match(html,new RegExp('id="'+id+'"'));assert.match(app,/careersUrl:careersUrl\|\|undefined/);assert.match(app,/Careers page must be a full HTTPS URL/);});
