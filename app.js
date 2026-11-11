@@ -8,7 +8,7 @@ import { DEFAULT_BOARDS as createDefaultBoards, boardUrl as buildBoardUrl } from
 'use strict';
 const $ = id => document.getElementById(id);
 const ATS = ['greenhouse','ashby','lever','workable','smartrecruiters','recruitee','gupy'];
-const DEFAULT_BOARDS = createDefaultBoards();
+const DEFAULT_BOARDS = createDefaultBoards;
 const PROVIDERS = {
  openai:{model:'chat-latest',base:'https://api.openai.com'},gemini:{model:'gemini-flash-latest',base:'https://generativelanguage.googleapis.com'},deepseek:{model:'deepseek-flash',base:'https://api.deepseek.com'},kimi:{model:'kimi-k2.5',base:'https://api.moonshot.cn'},
  anthropic:{model:'claude-sonnet-5',base:'https://api.anthropic.com'},ollama:{model:'llama3.1',base:'http://localhost:11434'},'openai-compatible':{model:'gpt-4o-mini',base:'http://localhost:4000'}
