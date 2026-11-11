@@ -99,16 +99,28 @@ async function runSearch(){
 function renderBoardErrors(){const box=$('boardErrors');if(!box)return;if(!state.searchErrors.length){box.innerHTML='';return;}box.innerHTML='<div class="board-errors-title">Source diagnostics ('+state.searchErrors.length+')</div>'+state.searchErrors.map(item=>'<div class="board-error"><b>'+esc(item.company)+'</b> · '+esc(item.ats)+'<span>'+esc(item.error||'Unknown error')+'</span></div>').join('');}
 function boardCareersUrl(board){if(board.careersUrl&&/^https:\/\//i.test(board.careersUrl))return board.careersUrl;const slug=String(board.board||'').trim();if(!slug)return '';const encoded=encodeURIComponent(slug);const templates={greenhouse:'https://job-boards.greenhouse.io/'+encoded,ashby:'https://jobs.ashbyhq.com/'+encoded,lever:'https://jobs.lever.co/'+encoded,workable:'https://apply.workable.com/'+encoded,smartrecruiters:'https://careers.smartrecruiters.com/'+encoded,recruitee:'https://'+encoded+'.recruitee.com'};if(board.ats==='manual')return /^https:\/\//i.test(slug)?slug:'';return templates[board.ats]||'';}
 function renderBoards(){const box=$('boardList');box.innerHTML=state.boards.map((b,i)=>`<div class="board-item"><input type="checkbox" data-board-check="${i}" ${b.enabled?'checked':''}><span><b>${esc(b.company)}</b><small> · ${esc(b.ats)}${b.default?' · default':''}</small></span>${boardCareersUrl(b)?`<a class="board-careers-link" href="${esc(safeHref(boardCareersUrl(b)))}" target="_blank" rel="noopener noreferrer" aria-label="Open ${esc(b.company)} careers page" title="Open careers page">↗</a>`:''}<details class="board-actions"><summary aria-label="Actions for ${esc(b.company)}" title="Board actions">⋯</summary><div class="board-action-menu"><button type="button" data-board-edit="${i}">Edit job board</button><button type="button" class="danger" data-board-remove="${i}">Remove</button></div></details></div>`).join('');$('boardCount').textContent=`${state.boards.length} configured`;box.querySelectorAll('[data-board-check]').forEach(el=>el.onchange=()=>{state.boards[+el.dataset.boardCheck].enabled=el.checked;});box.querySelectorAll('[data-board-edit]').forEach(el=>el.onclick=()=>{const index=+el.dataset.boardEdit;el.closest('details').open=false;editBoardDialog(index);});box.querySelectorAll('[data-board-remove]').forEach(el=>el.onclick=()=>{const index=+el.dataset.boardRemove;const board=state.boards[index];if(!confirm('Remove '+board.company+' from configured job boards?'))return;state.boards.splice(index,1);renderBoards();toast('Job board removed.');});}
+function selectedValues(id){return [...$(id).selectedOptions].map(option=>option.value);}
+function refreshDisplayFilterOptions(){
+ const options=[
+  {id:'displayLocation',values:[...new Set(state.jobs.map(job=>String(job.location||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b))},
+  {id:'displayWorkMode',values:[...new Set(state.jobs.map(job=>job.displayAttributes?.workMode||deriveJobAttributes(job).workMode).filter(Boolean))].sort()}
+ ];
+ for(const {id,values} of options){
+  const select=$(id),selected=new Set(selectedValues(id));
+  select.innerHTML=values.map(value=>'<option value="'+esc(value)+'">'+esc(value)+'</option>').join('');
+  [...select.options].forEach(option=>{option.selected=selected.has(option.value);});
+ }
+}
 function displayFilterValues(){
- const value=id=>$(id)?.value||'';
- return {workMode:value('displayWorkMode'),location:value('displayLocation').trim(),geoEligibility:value('displayGeoEligibility'),contract:value('displayContract'),salaryMin:value('displaySalaryMin').trim(),salaryMax:value('displaySalaryMax').trim(),currency:value('displayCurrency'),language:value('displayLanguage').trim(),travel:value('displayTravel'),requiredSkills:value('displayRequiredSkills').trim(),desiredSkills:value('displayDesiredSkills').trim(),postedWithin:value('displayPostedWithin'),includeUnknown:$('displayIncludeUnknown').checked};
+ return {locations:selectedValues('displayLocation'),workModes:selectedValues('displayWorkMode'),skills:$('displaySkills').value.trim()};
 }
 function updateDisplayFilterCount(){
  const f=displayFilterValues();
- const count=[f.workMode!=='all',Boolean(f.location),f.geoEligibility!=='all',f.contract!=='all',Boolean(f.salaryMin),Boolean(f.salaryMax),f.currency!=='all',Boolean(f.language),f.travel!=='all',Boolean(f.requiredSkills),Boolean(f.desiredSkills),f.postedWithin!=='all',!f.includeUnknown].filter(Boolean).length;
+ const count=[f.locations.length>0,f.workModes.length>0,Boolean(f.skills)].filter(Boolean).length;
  $('displayFilterCount').textContent=count?count+' active':'No additional filters';
 }
 function renderJobs(){
+ refreshDisplayFilterOptions();
  const box=$('jobResults'),pagination=$('jobPagination');
  const filter=$('filterJobs').value;
  let jobs=[...state.jobs];
@@ -140,9 +152,8 @@ function renderJobs(){
  pagination.querySelectorAll('[data-page]').forEach(button=>button.addEventListener('click',()=>{const page=Number(button.dataset.page);if(page<1||page>totalPages||page===currentJobsPage)return;currentJobsPage=page;renderJobs();$('jobResults').scrollIntoView({behavior:'smooth',block:'start'});}));
 }
 function clearDisplayFilters(){
- ['displayWorkMode','displayGeoEligibility','displayContract','displayCurrency','displayTravel','displayPostedWithin'].forEach(id=>$(id).value='all');
- ['displayLocation','displaySalaryMin','displaySalaryMax','displayLanguage','displayRequiredSkills','displayDesiredSkills'].forEach(id=>$(id).value='');
- $('displayIncludeUnknown').checked=true;currentJobsPage=1;renderJobs();
+ ['displayLocation','displayWorkMode'].forEach(id=>{[...$(id).options].forEach(option=>option.selected=false);});
+ $('displaySkills').value='';currentJobsPage=1;renderJobs();
 }
 
 function prepareJobAnalysis(key){const j=state.jobs.find(x=>jobKey(x)===key);if(!j)return;const description=stripHtml(j.description||'');$('jdText').value=description;$('panel-star').dataset.targetJob=key;$('jdAnalysis').innerHTML='';const back=$('backToOpportunity');back.disabled=false;back.onclick=()=>quickViewJob(key);$('jobDialog').close();switchTab('star');$('jdText').focus();toast('Job description copied. Review it and select Analyze CV ↔ job fit or Prepare STAR drafts.');}
