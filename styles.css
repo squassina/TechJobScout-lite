@@ -736,3 +736,48 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
  .story-card-footer { align-items:flex-start; flex-direction:column; }
  .story-actions { width:100%; justify-content:flex-end; }
 }
+
+
+/* Local agent package file explorer and in-page preview */
+.agent-file {
+  display:grid;
+  gap:3px;
+  width:100%;
+  padding:9px 10px 9px 20px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:var(--text-soft);
+  cursor:pointer;
+  text-align:left;
+  font:inherit;
+}
+.agent-file::before { content:'↳'; position:absolute; margin-left:-15px; color:var(--accent-bright); }
+.agent-file b { font-size:12px; }
+.agent-file span { color:var(--muted); font-size:10px; }
+.agent-file:hover, .agent-file.active {
+  border-color:var(--border-strong);
+  background:var(--surface-hover);
+}
+.agent-file.active b { color:var(--accent-bright); }
+.agent-preview {
+  display:grid;
+  gap:10px;
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px solid var(--border);
+}
+.agent-preview textarea {
+  width:100%;
+  min-height:280px;
+  padding:13px;
+  border:1px solid var(--border-strong);
+  border-radius:var(--radius-sm);
+  background:var(--surface-inset);
+  color:var(--text-soft);
+  font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;
+  resize:vertical;
+  white-space:pre;
+  tab-size:2;
+}
+.agent-preview textarea:focus { outline:2px solid var(--accent-bright); outline-offset:2px; }
