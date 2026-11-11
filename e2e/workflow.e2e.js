@@ -72,7 +72,7 @@ test('complete browser workflow: setup → candidate → job search → STAR →
       'Technology professional with experience building cloud software and distributed systems.',
       'Skills: Python, cloud architecture, software engineering.',
       'Led delivery of reliable services for enterprise customers.'
-    ].join('\\n');
+    ].join('\n');
     await page.locator('#cvText').fill(cv);
     await page.locator('#parseCv').click();
     await page.getByRole('button', { name: /Continue to candidate profile/ }).click();
