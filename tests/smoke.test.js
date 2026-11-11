@@ -294,3 +294,8 @@ test('ATS normalizers retain published date, workplace, contract and salary meta
 
 
 test('job search status panel does not expose a standalone jobs.json download',()=>{const start=html.indexOf('class="card search-side"');const end=html.indexOf('</div></div>',start);const panel=html.slice(start,end);assert.doesNotMatch(panel,/exportJobs|Export jobs JSON/);});
+
+
+test('display skills keywords uses a same-height wrapping textarea and updates results while typing',()=>{assert.match(html,/<textarea id="displaySkills" rows="4"/);assert.match(css,/\.display-filter-grid textarea\s*\{[\s\S]*?height:\s*112px;[\s\S]*?overflow-y:\s*auto;[\s\S]*?overflow-wrap:\s*anywhere;/);assert.match(app,/#jobDisplayFilters input, #jobDisplayFilters select, #jobDisplayFilters textarea/);});
+
+test('Build profile does not reference the removed export jobs control',()=>{assert.doesNotMatch(app,/\$\('exportJobs'\)/);assert.match(app,/\$\('parseCv'\)\.onclick=\(\)=>refreshProfileFromCv/);});
