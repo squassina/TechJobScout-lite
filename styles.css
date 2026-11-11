@@ -1367,3 +1367,22 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
 #editBoardDialog .dialog-body label { margin-bottom: 14px; }
 #editBoardDialog .dialog-body input, #editBoardDialog .dialog-body select { width: 100%; }
 @media (max-width: 560px) { .board-list { grid-template-columns: minmax(0, 1fr); } .dialog-actions { flex-wrap: wrap; } .dialog-actions .btn { flex: 1 1 120px; } }
+
+
+.step-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.step-navigation .btn { min-width: 132px; }
+.step-navigation-end {
+  color: var(--muted);
+  font-size: 11px;
+}
+@media (max-width: 480px) {
+  .step-navigation .btn { min-width: 0; flex: 1; }
+}
