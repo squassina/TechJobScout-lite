@@ -35,7 +35,7 @@
  <div class="display-filter-grid">
   <label class="display-filter-field">Location <select id="displayLocation" multiple size="4" aria-describedby="displayLocationHelp"></select><small id="displayLocationHelp">Select one or more locations. Leave empty to show all.</small></label>
   <label class="display-filter-field">Work model <select id="displayWorkMode" multiple size="4" aria-describedby="displayWorkModeHelp"></select><small id="displayWorkModeHelp">Select one or more models. Leave empty to show all.</small></label>
-  <label class="display-filter-field display-filter-keywords">Skills / keywords <input id="displaySkills" type="search" placeholder="e.g. AWS, Kubernetes, Python"><small>Searches the complete job description. Separate terms with commas.</small></label>
+  <label class="display-filter-field display-filter-keywords">Skills / keywords <textarea id="displaySkills" rows="4" placeholder="e.g. AWS, Kubernetes, Python" aria-label="Skills and keywords"></textarea><small>Searches the complete job description. Separate terms with commas.</small></label>
  </div>
  <div class="display-filter-footer"><span class="muted tiny">Jobs with missing location or work-model details remain visible.</span><button type="button" class="btn btn-small btn-secondary" id="clearDisplayFilters">Clear display filters</button></div>
 </details><div id="jobResults" class="job-results" aria-live="polite" aria-relevant="additions text"><div class="empty-state">Your matching opportunities will appear here.</div></div><nav id="jobPagination" class="job-pagination" aria-label="Job results pages" hidden></nav>
