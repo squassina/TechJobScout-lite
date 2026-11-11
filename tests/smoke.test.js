@@ -235,3 +235,10 @@ test('button groups keep consistent spacing and wrap on narrow screens',()=>{ass
 
 
 test('CV build profile action has vertical separation from the CV text area',()=>{assert.match(css,/#panel-profile \.upload-card > #cvText \+ \.row\s*\{\s*margin-top:\s*14px;/);assert.match(css,/#panel-profile \.upload-card > #cvText \+ \.row > \.btn\s*\{\s*flex:\s*0 0 auto;/);});
+
+
+test('profile heading omits redundant editable label',()=>{const profile=html.slice(html.indexOf('id="panel-profile"'),html.indexOf('id="panel-search"'));assert.match(profile,/<div class="card-title">Candidate profile<\/div>/);assert.doesNotMatch(profile,/Candidate profile <span class="muted tiny">Editable<\/span>/);});
+test('workflow step indicators share top alignment across every step',()=>{assert.match(css,/\.section-head\s*\{\s*align-items:\s*flex-start;/);assert.match(css,/\.section-head \.step-pill\s*\{[\s\S]*?margin-top:\s*2px;[\s\S]*?white-space:\s*nowrap;/);for(const step of ['1','2','3','4'])assert.match(html,new RegExp('STEP '+step+' \\/ 4'));});
+test('STAR manual-add action is separated from the empty-state and explanatory note',()=>{assert.match(css,/#panel-star > \.story-list \+ \.row\.between\s*\{[\s\S]*?gap:\s*16px;[\s\S]*?margin-top:\s*16px;/);assert.match(css,/@media \(max-width: 520px\)[\s\S]*?#panel-star > \.story-list \+ \.row\.between\s*\{\s*align-items:\s*flex-start;\s*flex-direction:\s*column;/);});
+test('agent export buttons and privacy note have clear vertical separation',()=>{assert.match(css,/#panel-agent \.agent-export-card > \.btn-block \+ \.btn-block\s*\{\s*margin-top:\s*12px;/);assert.match(css,/#panel-agent \.agent-privacy-note\s*\{\s*margin-top:\s*14px;/);});
+test('job board add action is separated from the board list',()=>{assert.match(css,/#panel-search \.search-layout > \.card > \.row\.between\s*\{[\s\S]*?margin-bottom:\s*14px;/);});
