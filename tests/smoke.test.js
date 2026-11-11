@@ -252,7 +252,7 @@ test('display filters derive normalized job conditions without changing source d
 });
 test('display filters are local, composable and preserve unknown attributes by default',()=>{
  const jobs=[
-  {id:'a',score:88,description:'Remote full-time. English required. Requirements:\nAWS\nNice to have:\nTerraform',location:'Brazil',remote:true,employment_type:'full-time',salaryMin:120000,salaryMax:150000,salaryCurrency:'USD',createdAt:'2026-11-10T12:00:00Z'},
+  {id:'a',score:88,description:'Remote full-time. English required.\nRequirements:\nAWS\nNice to have:\nTerraform',location:'Brazil',remote:true,employment_type:'full-time',salaryMin:120000,salaryMax:150000,salaryCurrency:'USD',createdAt:'2026-11-10T12:00:00Z'},
   {id:'b',score:72,description:'On-site contract role. Portuguese required.',location:'Lisbon, Portugal',workplace_type:'on-site',employment_type:'contract',createdAt:'2026-10-01T12:00:00Z'},
   {id:'c',score:65,description:'Details not provided',location:'',createdAt:null}
  ];
