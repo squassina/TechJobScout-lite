@@ -411,10 +411,11 @@ input[type=checkbox] { accent-color: var(--accent); }
 
 .agent-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 17px; }
 .file-list { display: grid; gap: 13px; }
-.file-list div { position: relative; display: grid; gap: 3px; padding-left: 20px; }
-.file-list div::before { position: absolute; left: 0; color: var(--accent-bright); content: '↳'; }
-.file-list b { font-size: 12px; }
-.file-list span { color: var(--muted); font-size: 10px; }
+.file-list > .agent-file b { font-size: 12px; }
+.file-list > .agent-file span { color: var(--muted); font-size: 10px; }
+.agent-folder-name b { font-size: 12px; }
+.agent-folder-name .folder-icon { color: var(--accent-bright); font-size: 12px; }
+.agent-folder-files .agent-file-link span { color: inherit; font-size: 11px; }
 .callout {
   margin: 14px 0;
   padding: 12px;
