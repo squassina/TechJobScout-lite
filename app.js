@@ -144,7 +144,8 @@ function showAgentFile(name){
  currentAgentPreviewFile=name;
  $('agentFilePreview').value=files[name];
  $('agentPreviewName').textContent=name;
- $('agentPreviewStatus').textContent=`${name} · ${files[name].length.toLocaleString()} characters · Generated locally · Read only`;\n if(!$('agentFileDialog').open)$('agentFileDialog').showModal();
+ $('agentPreviewStatus').textContent=`${name} · ${files[name].length.toLocaleString()} characters · Generated locally · Read only`;
+ if(!$('agentFileDialog').open)$('agentFileDialog').showModal();
  document.querySelectorAll('[data-preview-file]').forEach(button=>{const active=button.dataset.previewFile===name;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
 }
 async function copyAgentPreview(){
