@@ -275,3 +275,12 @@ test('display filters run after the stored result set and do not recalculate mat
  assert.match(app,/displayAttributes:deriveJobAttributes\(j\)/);
  assert.match(app,/scoreJob\(j,c,state\.profile\)/);
 });
+
+
+test('ATS normalizers retain published date, workplace, contract and salary metadata',()=>{
+ const board={company:'Example',board:'example'};
+ const greenhouse=normalizeJobs('greenhouse',{jobs:[{id:1,title:'Architect',absolute_url:'https://example.com/job',content:'Full-time',location:{name:'Remote'},created_at:'2026-11-10T00:00:00Z',employment_type:'Full-time',salary:{min:100000,max:150000,currency:'USD'}}]},board)[0];
+ assert.equal(greenhouse.createdAt,'2026-11-10T00:00:00Z');assert.equal(greenhouse.employment_type,'Full-time');assert.equal(greenhouse.salary.min,100000);assert.equal(greenhouse.salaryCurrency,'USD');
+ const ashby=normalizeJobs('ashby',{jobs:[{id:'a',title:'Engineer',jobUrl:'https://example.com/a',location:'Remote',isRemote:true,workplaceType:'Remote',employmentType:'Full-time',publishedAt:'2026-11-09T00:00:00Z'}]},board)[0];
+ assert.equal(ashby.workplace_type,'Remote');assert.equal(ashby.employment_type,'Full-time');assert.equal(ashby.publishedAt,'2026-11-09T00:00:00Z');
+});
