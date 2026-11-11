@@ -232,3 +232,6 @@ test('search preferences start empty until a CV is imported',()=>{assert.match(h
 
 
 test('button groups keep consistent spacing and wrap on narrow screens',()=>{assert.match(css,/\.job-actions\s*\{\s*gap:\s*10px;/);assert.match(css,/\.story-actions\s*\{\s*gap:\s*10px;\s*flex-wrap:\s*wrap;/);assert.match(css,/\.pagination-controls\s*\{\s*gap:\s*8px;\s*flex-wrap:\s*wrap;/);assert.match(css,/\.dialog-actions\s*\{[\s\S]*?gap:\s*10px;[\s\S]*?flex-wrap:\s*wrap;/);assert.match(css,/\.dialog-body > \.row\s*\{\s*gap:\s*10px;\s*flex-wrap:\s*wrap;/);assert.match(css,/@media \(max-width: 520px\)[\s\S]*?\.dialog-body > \.row > \.btn\s*\{\s*flex:\s*1 1 140px;/);});
+
+
+test('CV build profile action has vertical separation from the CV text area',()=>{assert.match(css,/#panel-profile \.upload-card > #cvText \+ \.row\s*\{\s*margin-top:\s*14px;/);assert.match(css,/#panel-profile \.upload-card > #cvText \+ \.row > \.btn\s*\{\s*flex:\s*0 0 auto;/);});
