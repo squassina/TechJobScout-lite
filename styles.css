@@ -778,7 +778,12 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
   color:var(--text-soft);
   font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;
   resize:vertical;
-  white-space:pre;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  overflow-x:hidden;
+  box-sizing:border-box;
+  max-width:100%;
   tab-size:2;
 }
 .agent-preview textarea:focus { outline:2px solid var(--accent-bright); outline-offset:2px; }
@@ -816,7 +821,12 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
   color:var(--text-soft);
   font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;
   resize:vertical;
-  white-space:pre;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  overflow-x:hidden;
+  box-sizing:border-box;
+  max-width:100%;
   tab-size:2;
 }
 .agent-file-dialog-body textarea:focus {
@@ -1020,4 +1030,18 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
 .agent-explorer .agent-file:focus-visible {
   outline:2px solid var(--accent-bright);
   outline-offset:-2px;
+}
+
+
+/* Keep long code and prompt lines readable inside every file preview */
+.agent-file-dialog-body,
+.agent-file-dialog-body textarea,
+.quick-description {
+  min-width:0;
+  max-width:100%;
+  overflow-wrap:anywhere;
+}
+.agent-file-dialog-body textarea {
+  white-space:pre-wrap;
+  overflow-x:hidden;
 }
