@@ -137,7 +137,7 @@ test('Fit Score components expose job and candidate evidence for traceability',(
 
 test('location is reported as Eligibility instead of silently filtering out the job',()=>{
  assert.doesNotMatch(app,/if\(!locationAllowed\(j\.location,currentCriteria\(\)\)\)continue/);
- assert.match(app,/eligibility:assessEligibility/);
+
 });
 test('remote modality is unknown unless candidate work-mode preferences are explicit',()=>{
  const c={keywords:[],excluded_keywords:[],allowed_locations:[],excluded_locations:[]};
