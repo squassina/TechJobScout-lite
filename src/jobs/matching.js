@@ -26,5 +26,13 @@ export function scoreJob(j,c,p) {
  const skills=(p.skills||[]).filter(x=>hasTerm(x,title+' '+desc));
  if(skills.length){const points=Math.min(10,skills.length*2);score+=points;components.push({factor:'Candidate skills',points,detail:skills.slice(0,10).join(', ')});}
  if(j.remote===true||['remote','brazil','brasil','latam','americas','global','worldwide'].some(x=>hasTerm(x,loc))){score+=15;components.push({factor:'Location',points:15,detail:'Remote or preferred region'});}else if(['united states','us'].some(x=>hasTerm(x,loc))){score+=10;components.push({factor:'Location',points:10,detail:'Potentially compatible region'});}
- return {score:Math.min(100,score),components,matched:[...titleHits,...descHits,...roleHits,...skills]};
+ const cappedScore=Math.min(100,score),rawTotal=components.reduce((sum,item)=>sum+item.points,0);
+ if(rawTotal>cappedScore&&rawTotal>0){
+  const scaled=components.map(item=>({...item,points:Math.floor(item.points*cappedScore/rawTotal)}));
+  let remainder=cappedScore-scaled.reduce((sum,item)=>sum+item.points,0);
+  const order=components.map((item,index)=>({index,weight:item.points*cappedScore/rawTotal-Math.floor(item.points*cappedScore/rawTotal)})).sort((a,b)=>b.weight-a.weight);
+  for(let i=0;remainder>0;i++,remainder--)scaled[order[i%order.length].index].points++;
+  return {score:cappedScore,components:scaled,matched:[...titleHits,...descHits,...roleHits,...skills]};
+ }
+ return {score:cappedScore,components,matched:[...titleHits,...descHits,...roleHits,...skills]};
 }
