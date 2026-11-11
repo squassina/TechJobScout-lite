@@ -40,3 +40,5 @@ test('design system defines one dark surface palette for all primary UI surfaces
 test('LLM setup has a single explicit test-and-save action; setup is not duplicated',()=>{assert.match(html,/id="testProvider">Test &amp; save connection/);assert.doesNotMatch(html,/id="saveSettings"|Save LLM setup/);});
 
 test('header does not duplicate the AI setup navigation action',()=>{assert.doesNotMatch(html,/id="settingsOpen"|LLM setup/);});
+
+test('provider setup keyboard order follows provider, API key, save-key consent, model and advanced settings',()=>{const section=html.slice(html.indexOf('id="panel-setup"'),html.indexOf('id="panel-profile"'));const order=['id="provider"','id="apiKey"','id="rememberKey"','id="model"','class="advanced-connection"','id="baseUrl"','id="deleteKeys"','id="testProvider"'];let last=-1;for(const token of order){const index=section.indexOf(token);assert.ok(index>last,'Expected '+token+' after previous keyboard control');last=index;}assert.match(css,/\.setup-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s);});
