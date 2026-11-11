@@ -206,3 +206,6 @@ test('ATS payload inspector recognizes each supported public API response envelo
 
 
 test('live ATS validator is available and checks HTTP, JSON envelope and normalized job records',()=>{const script=readFileSync(new URL('../scripts/check-ats-boards.mjs',import.meta.url),'utf8');const packageJson=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8'));assert.equal(packageJson.scripts['check:ats'],'node scripts/check-ats-boards.mjs');assert.match(script,/response\.ok/);assert.match(script,/content-type/);assert.match(script,/inspectBoardPayload/);assert.match(script,/normalizeJobs/);assert.match(script,/Timed out after/);assert.match(script,/browser CORS/);});
+
+
+test('ATS live validator treats a valid empty board as reachable but a non-empty unknown schema as failed',async()=>{const {inspectBoardPayload}=await import('../src/ats/boards.js');const empty=inspectBoardPayload('greenhouse',{jobs:[]});assert.equal(empty.valid,true);assert.equal(empty.count,0);const unknown=inspectBoardPayload('greenhouse',{jobs:[{id:1,role:'Engineer'}]});assert.equal(unknown.valid,true);assert.equal(unknown.usable,0);assert.match(unknown.reason,/no recognizable title/);});
