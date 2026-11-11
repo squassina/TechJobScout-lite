@@ -550,3 +550,50 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
     transition-duration: .01ms !important;
   }
 }
+
+
+/* Provider setup: consistent field alignment and balanced form rows */
+.setup-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 18px 20px;
+}
+.setup-grid > label:not(.advanced-connection) {
+  min-width: 0;
+  align-content: start;
+  gap: 8px;
+  margin: 0;
+}
+.setup-grid > label > input,
+.setup-grid > label > select {
+  display: block;
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+}
+.setup-grid > .api-key-field { grid-column: 1 / -1; }
+.setup-grid .model-field { align-content: start; }
+.setup-grid .model-field select { min-height: 42px; }
+.model-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 32px;
+}
+.model-actions small { margin: 0 !important; line-height: 1.4; }
+.model-actions .btn { flex: 0 0 auto; }
+.setup-grid .advanced-connection {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.setup-card > .inline-check { margin: 2px 0 14px; }
+.setup-card > .callout { margin: 0 0 18px; }
+.setup-card .setup-actions { align-items: center; margin-top: 0; }
+.setup-card #settingsStatus { margin: 12px 0 0; }
+@media (max-width: 760px) {
+  .setup-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .setup-grid > .api-key-field,
+  .setup-grid > .advanced-connection { grid-column: 1; }
+  .model-actions { align-items: flex-start; flex-direction: column; }
+}
