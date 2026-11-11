@@ -226,3 +226,6 @@ test('P2 Fit Score documentation explains Unknown evidence, coverage, eligibilit
 test('P2 ATS documentation distinguishes Node validation from browser CORS',()=>{const doc=readFileSync(new URL('../docs/ATS-INTEGRATIONS.md',import.meta.url),'utf8');for(const name of ['Greenhouse','Ashby','Lever','Workable','SmartRecruiters','Recruitee','Gupy','Workday'])assert.ok(doc.includes(name));assert.match(doc,/does not prove that GitHub Pages can access/);});
 test('P2 institutional content explains audience, product scope, privacy and limitations',()=>{assert.match(html,/id="aboutTitle"/);assert.match(html,/technology professionals across roles and seniority levels/);assert.match(html,/decision-support tool/);assert.match(readFileSync(new URL('../README.md',import.meta.url),'utf8'),/About the project/);});
 
+
+
+test('search preferences start empty until a CV is imported',()=>{assert.match(html,/<input id="keywords" value="">/);assert.match(html,/<input id="excludedKeywords" value="">/);assert.match(html,/<input id="allowedLocations" value="">/);assert.match(html,/<input id="excludedLocations" value="">/);assert.match(html,/<input id="minScore" type="range" min="0" max="100" value="45">/);});
