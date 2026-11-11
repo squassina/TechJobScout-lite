@@ -229,3 +229,6 @@ test('P2 institutional content explains audience, product scope, privacy and lim
 
 
 test('search preferences start empty until a CV is imported',()=>{assert.match(html,/<input id="keywords" value="">/);assert.match(html,/<input id="excludedKeywords" value="">/);assert.match(html,/<input id="allowedLocations" value="">/);assert.match(html,/<input id="excludedLocations" value="">/);assert.match(html,/<input id="minScore" type="range" min="0" max="100" value="45">/);});
+
+
+test('button groups keep consistent spacing and wrap on narrow screens',()=>{assert.match(css,/\.job-actions\s*\{\s*gap:\s*10px;/);assert.match(css,/\.story-actions\s*\{\s*gap:\s*10px;\s*flex-wrap:\s*wrap;/);assert.match(css,/\.pagination-controls\s*\{\s*gap:\s*8px;\s*flex-wrap:\s*wrap;/);assert.match(css,/\.dialog-actions\s*\{[\s\S]*?gap:\s*10px;[\s\S]*?flex-wrap:\s*wrap;/);assert.match(css,/\.dialog-body > \.row\s*\{\s*gap:\s*10px;\s*flex-wrap:\s*wrap;/);assert.match(css,/@media \(max-width: 520px\)[\s\S]*?\.dialog-body > \.row > \.btn\s*\{\s*flex:\s*1 1 140px;/);});
