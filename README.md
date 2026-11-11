@@ -96,3 +96,19 @@ Run the application through a static HTTP server and test each configured ATS bo
 ## License
 
 See [LICENSE](LICENSE).
+
+## Fit Score methodology and limitations
+
+See [docs/FIT-SCORE.md](docs/FIT-SCORE.md) for scoring dimensions, Unknown evidence, Assessment Coverage and separate Eligibility signals. The score is a deterministic text-based triage heuristic. It can miss synonyms, context, transferable skills and nuanced seniority, and can overvalue repeated keywords. It is not a hiring prediction; inspect the underlying evidence and original posting.
+
+## ATS integrations and reliability
+
+See [docs/ATS-INTEGRATIONS.md](docs/ATS-INTEGRATIONS.md) for supported endpoints and failure modes. A successful Node.js ATS validation does not prove browser CORS access from GitHub Pages.
+
+## External dependencies
+
+The static page currently loads PDF.js 3.11.174 and JSZip 3.10.1 from cdnjs, plus DM Sans and Manrope from Google Fonts. These are external runtime dependencies: users need network access to those services, and the app inherits their availability and supply-chain risk. Versions are explicit; do not replace them with floating `latest` URLs. No additional runtime package is introduced by this release.
+
+## About the project
+
+TechJobScout Lite is an open-source, static browser workspace for technology professionals across roles and seniority levels. It supports job discovery, evidence-led role review, interview preparation and export to a local AI coding agent. It has no account, backend, database, shared AI gateway or telemetry service. Users bring their own provider credentials and decide whether personal data is sent to that provider.
