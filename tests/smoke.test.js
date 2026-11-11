@@ -273,6 +273,8 @@ test('filter UI exposes only location, work model and full-description keyword f
  for(const id of ['displayWorkMode','displayLocation','displaySkills','clearDisplayFilters'])assert.match(html,new RegExp('id="'+id+'"'));
  for(const id of ['displayGeoEligibility','displayContract','displaySalaryMin','displaySalaryMax','displayCurrency','displayLanguage','displayTravel','displayRequiredSkills','displayDesiredSkills','displayPostedWithin','displayIncludeUnknown'])assert.doesNotMatch(html,new RegExp('id="'+id+'"'));
  assert.match(html,/multiple/);
+ assert.doesNotMatch(html,/id="exportJobs"|Export jobs JSON/);
+ assert.doesNotMatch(app,/exportJobs/);
  assert.doesNotMatch(html,/id="displaySeniority"|id="displayCompany"|id="displayATS"/);
 });
 test('display filters run after the stored result set and do not recalculate matching',()=>{
@@ -289,3 +291,6 @@ test('ATS normalizers retain published date, workplace, contract and salary meta
  const ashby=normalizeJobs('ashby',{jobs:[{id:'a',title:'Engineer',jobUrl:'https://example.com/a',location:'Remote',isRemote:true,workplaceType:'Remote',employmentType:'Full-time',publishedAt:'2026-11-09T00:00:00Z'}]},board)[0];
  assert.equal(ashby.workplace_type,'Remote');assert.equal(ashby.employment_type,'Full-time');assert.equal(ashby.publishedAt,'2026-11-09T00:00:00Z');
 });
+
+
+test('job search status panel does not expose a standalone jobs.json download',()=>{const start=html.indexOf('class="card search-side"');const end=html.indexOf('</div></div>',start);const panel=html.slice(start,end);assert.doesNotMatch(panel,/exportJobs|Export jobs JSON/);});
