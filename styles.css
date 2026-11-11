@@ -1446,3 +1446,89 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
 
 .skip-link { position: absolute; z-index: 20; top: 8px; left: 8px; padding: 10px 14px; transform: translateY(-160%); border: 1px solid var(--accent); border-radius: var(--radius-sm); background: var(--surface-raised); color: var(--text); }
 .skip-link:focus { transform: translateY(0); }
+
+
+/* Consistent breathing room and wrapping for every multi-action group */
+.job-actions {
+  gap: 10px;
+}
+.story-actions {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pagination-controls {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dialog-body > .row {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.step-navigation {
+  gap: 12px;
+}
+@media (max-width: 520px) {
+  .story-actions {
+    justify-content: flex-start;
+  }
+  .dialog-body > .row > .btn {
+    flex: 1 1 140px;
+  }
+}
+
+
+/* CV editor actions need clear separation from the text area above */
+#panel-profile .upload-card > #cvText + .row {
+  margin-top: 14px;
+}
+#panel-profile .upload-card > #cvText + .row > .btn {
+  flex: 0 0 auto;
+}
+
+
+/* Align workflow step indicators consistently and separate nearby actions */
+.section-head {
+  align-items: flex-start;
+}
+.section-head .step-pill {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+#panel-star > .story-list + .row.between {
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+#panel-star > .story-list + .row.between > .btn {
+  flex: 0 0 auto;
+}
+#panel-agent .agent-export-card > .btn-block + .btn-block {
+  margin-top: 12px;
+}
+#panel-agent .agent-privacy-note {
+  margin-top: 14px;
+}
+#panel-search .search-layout > .card > .row.between {
+  gap: 12px;
+  margin-bottom: 14px;
+}
+#panel-search .search-layout > .card > .row.between > .btn {
+  flex: 0 0 auto;
+}
+@media (max-width: 520px) {
+  #panel-star > .story-list + .row.between {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  #panel-star > .story-list + .row.between > .btn {
+    align-self: flex-start;
+  }
+}
