@@ -1532,3 +1532,74 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
     align-self: flex-start;
   }
 }
+
+
+/* Local-only job display filters: these never alter matching or Fit Score */
+.job-display-filters {
+  margin: 14px 0 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.job-display-filters > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+.job-display-filters > summary::-webkit-details-marker { display: none; }
+.job-display-filters > summary::after { content: '＋'; color: var(--accent); }
+.job-display-filters[open] > summary::after { content: '−'; }
+.filter-count { color: var(--muted); font-size: 10px; font-weight: 500; }
+.display-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.display-filter-grid label {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+.display-filter-grid input,
+.display-filter-grid select {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  padding: 8px 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+}
+.display-filter-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.display-filter-footer .inline-check { margin: 0; }
+@media (max-width: 900px) {
+  .display-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .job-display-filters { padding: 11px; }
+  .display-filter-grid { grid-template-columns: minmax(0, 1fr); }
+  .display-filter-footer { align-items: flex-start; flex-direction: column; }
+}
