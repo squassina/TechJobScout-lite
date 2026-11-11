@@ -74,7 +74,7 @@ export function filterJobsForDisplay(jobs, filters = {}) {
  return (jobs || []).filter(job => {
   const a = job.displayAttributes || deriveJobAttributes(job);
   if (filters.workMode && filters.workMode !== 'all' && (a.workMode ? a.workMode !== filters.workMode : !includeUnknown)) return false;
-  if (filters.location && !(a.location || '').toLowerCase().includes(filters.location.toLowerCase()) && !(a.geographicEligibility === 'worldwide' && /worldwide|global|anywhere/i.test(filters.location))) return false;
+  if (filters.location && (!a.location ? !includeUnknown : !(a.location || '').toLowerCase().includes(filters.location.toLowerCase()) && !(a.geographicEligibility === 'worldwide' && /worldwide|global|anywhere/i.test(filters.location)))) return false;
   if (filters.geoEligibility && filters.geoEligibility !== 'all' && (a.geographicEligibility ? a.geographicEligibility !== filters.geoEligibility : !includeUnknown)) return false;
   if (filters.contract && filters.contract !== 'all' && (a.contract ? a.contract !== filters.contract : !includeUnknown)) return false;
   if (filters.currency && filters.currency !== 'all' && (a.salaryCurrency ? a.salaryCurrency !== filters.currency : !includeUnknown)) return false;
