@@ -1559,7 +1559,7 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
 .filter-count { color: var(--muted); font-size: 10px; font-weight: 500; }
 .display-filter-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(220px, 1.15fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
   gap: 16px;
   margin-top: 14px;
@@ -1575,7 +1575,8 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
   font-weight: 650;
 }
 .display-filter-grid input,
-.display-filter-grid select {
+.display-filter-grid select,
+.display-filter-grid textarea {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -1588,16 +1589,30 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
   font: inherit;
   font-size: 12px;
 }
-.display-filter-grid select[multiple] {
+.display-filter-grid select[multiple],
+.display-filter-grid textarea {
   height: 112px;
   min-height: 112px;
   padding: 6px 8px;
   line-height: 1.55;
   accent-color: var(--accent);
 }
+.display-filter-grid textarea {
+  height: 112px;
+  min-height: 112px;
+  max-height: 112px;
+  resize: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.55;
+}
 .display-filter-grid select[multiple] option { padding: 3px 5px; border-radius: 4px; }
 .display-filter-grid input:focus,
-.display-filter-grid select:focus {
+.display-filter-grid select:focus,
+.display-filter-grid textarea:focus {
   outline: 2px solid color-mix(in srgb, var(--accent) 28%, transparent);
   outline-offset: 1px;
 }
