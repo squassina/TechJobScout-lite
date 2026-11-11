@@ -209,3 +209,6 @@ test('live ATS validator is available and checks HTTP, JSON envelope and normali
 
 
 test('ATS live validator treats a valid empty board as reachable but a non-empty unknown schema as failed',async()=>{const {inspectBoardPayload}=await import('../src/ats/boards.js');const empty=inspectBoardPayload('greenhouse',{jobs:[]});assert.equal(empty.valid,true);assert.equal(empty.count,0);const unknown=inspectBoardPayload('greenhouse',{jobs:[{id:1,role:'Engineer'}]});assert.equal(unknown.valid,true);assert.equal(unknown.usable,0);assert.match(unknown.reason,/no recognizable title/);});
+
+
+test('default ATS board registry is imported as an array, not invoked as a factory',()=>{assert.match(app,/import \{ DEFAULT_BOARDS as createDefaultBoards/);assert.match(app,/const DEFAULT_BOARDS = createDefaultBoards;/);assert.doesNotMatch(app,/createDefaultBoards\(\)/);});
