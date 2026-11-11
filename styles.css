@@ -387,20 +387,28 @@ input[type=checkbox] { accent-color: var(--accent); }
 }
 .ai-consent { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .ai-consent p { margin: 5px 0 0; }
-.story-list { display: grid; gap: 12px; }
-.story-card { padding: 18px; }
-.story-card header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-.story-card header strong { color: var(--text); font: 700 14px Manrope, sans-serif; }
-.draft-label {
-  padding: 5px 8px;
-  border-radius: 12px;
-  background: var(--warning-bg);
-  color: var(--warning-text);
-  font-size: 9px;
-}
-.story-card .story-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.story-card label { font-size: 10px !important; }
-.story-card textarea { min-height: 65px; }
+.story-list { display: grid; gap: 18px; }
+.story-card { padding: 20px; }
+.story-card-header { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
+.story-title-wrap { display:grid; flex:1; min-width:0; gap:7px; }
+.story-index { color:var(--accent-bright); font-size:9px; font-weight:800; letter-spacing:1.5px; }
+.story-title-input { width:100%; max-width:520px; padding:8px 10px; border:1px solid var(--border-strong); border-radius:7px; background:var(--surface-inset); color:var(--text); font:700 15px Manrope,sans-serif; }
+.story-title-input:focus { outline:2px solid var(--accent-bright); outline-offset:2px; }
+.draft-label { flex-shrink:0; padding:6px 9px; border-radius:12px; background:var(--warning-bg); color:var(--warning-text); font-size:9px; }
+.story-card .story-fields.star-columns { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; align-items:stretch; }
+.story-card .star-field { display:flex; min-width:0; flex-direction:column; gap:9px; margin:0; padding:13px; border:1px solid var(--border); border-radius:11px; background:var(--surface-inset); color:var(--text-soft); }
+.star-field-heading { display:flex; align-items:center; gap:9px; }
+.star-letter { display:grid; width:30px; height:30px; flex:0 0 30px; place-items:center; border:1px solid #26765a; border-radius:8px; background:#0b382b; color:var(--accent-bright); font:800 17px Manrope,sans-serif; }
+.star-field-name { color:var(--text); font:700 13px Manrope,sans-serif; }
+.star-field-hint { min-height:34px; color:var(--muted); font-size:10px; font-weight:400; line-height:1.45; }
+.story-card .star-field textarea { width:100%; min-height:145px; flex:1; padding:10px; resize:vertical; border:1px solid var(--border-strong); border-radius:7px; outline:none; background:#031f18; color:var(--text); font:12px/1.55 'DM Sans',sans-serif; }
+.story-card .star-field textarea:focus { border-color:var(--accent-bright); box-shadow:0 0 0 3px #25ddb11a; }
+.story-card .star-field textarea::placeholder { color:#719b89; }
+.story-card-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:15px; padding-top:13px; border-top:1px solid var(--border); }
+.story-completion { color:var(--muted); font-size:10px; }
+.story-actions { display:flex; align-items:center; gap:8px; }
+.story-actions button:disabled { cursor:not-allowed; opacity:.45; }
+
 .agent-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 17px; }
 .file-list { display: grid; gap: 13px; }
 .file-list div { position: relative; display: grid; gap: 3px; padding-left: 20px; }
@@ -719,3 +727,12 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
 .page-number:hover, .page-number.active { border-color:var(--accent-strong); background:var(--surface-hover); color:var(--accent-bright); }
 .pagination-controls button:disabled { cursor:not-allowed; opacity:.4; }
 @media (max-width:560px) { .job-pagination { align-items:flex-start; flex-direction:column; } .pagination-controls { width:100%; flex-wrap:wrap; } }
+
+@media (max-width: 520px) {
+ .story-card { padding:14px; }
+ .story-card-header { align-items:flex-start; flex-direction:column; }
+ .story-card .story-fields.star-columns { grid-template-columns:1fr; }
+ .story-card .star-field textarea { min-height:110px; }
+ .story-card-footer { align-items:flex-start; flex-direction:column; }
+ .story-actions { width:100%; justify-content:flex-end; }
+}
