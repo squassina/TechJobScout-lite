@@ -245,37 +245,42 @@ test('agent export buttons and privacy note have clear vertical separation',()=>
 test('job board add action is separated from the board list',()=>{assert.match(css,/#panel-search \.search-layout > \.card > \.row\.between\s*\{[\s\S]*?margin-bottom:\s*14px;/);});
 
 
-test('display filters derive normalized job conditions without changing source descriptions',()=>{
- const job={title:'Cloud Architect',location:'São Paulo, Brazil',description:'Remote position. Full-time. Visa sponsorship available.\nRequirements:\nEnglish required\nAWS and Kubernetes\nNice to have:\nTerraform\nOccasional travel.',remote:true,createdAt:'2026-11-10T12:00:00Z',salaryMin:120000,salaryMax:160000,salaryCurrency:'USD'};
+test('display filters derive only reliable location and explicit work model attributes',()=>{
+ const job={title:'Cloud Architect',location:'São Paulo, Brazil',description:'Remote position. Full-time. AWS and Kubernetes.'};
  const attrs=deriveJobAttributes(job);
- assert.equal(attrs.workMode,'remote');assert.equal(attrs.contract,'full-time');assert.equal(attrs.geographicEligibility,'sponsorship');assert.equal(attrs.salaryMin,120000);assert.equal(attrs.salaryCurrency,'USD');assert.match(attrs.requiredText,/AWS and Kubernetes/);assert.match(attrs.desiredText,/Terraform/);assert.match(attrs.languageText,/English required/);assert.equal(attrs.travel,'occasional');assert.equal(job.description.includes('Requirements:'),true);
+ assert.equal(attrs.workMode,'remote');assert.equal(attrs.location,'São Paulo, Brazil');
+ assert.deepEqual(Object.keys(attrs).sort(),['location','workMode']);
+ assert.equal(job.description.includes('Full-time.'),true);
 });
-test('display filters are local, composable and preserve unknown attributes by default',()=>{
+test('display filters support multiple locations and work models and preserve unknown data',()=>{
  const jobs=[
-  {id:'a',score:88,description:'Remote full-time. English required.\nRequirements:\nAWS\nNice to have:\nTerraform',location:'Brazil',remote:true,employment_type:'full-time',salaryMin:120000,salaryMax:150000,salaryCurrency:'USD',createdAt:'2026-11-10T12:00:00Z'},
-  {id:'b',score:72,description:'On-site contract role. Portuguese required.',location:'Lisbon, Portugal',workplace_type:'on-site',employment_type:'contract',createdAt:'2026-10-01T12:00:00Z'},
-  {id:'c',score:65,description:'Details not provided',location:'',createdAt:null}
+  {id:'a',score:88,description:'Remote role. AWS and Kubernetes',location:'Brazil',remote:true},
+  {id:'b',score:72,description:'Hybrid role. Python',location:'Lisbon, Portugal',workplace_type:'hybrid'},
+  {id:'c',score:65,description:'Details not provided',location:'',createdAt:null},
+  {id:'d',score:60,description:'On-site role. AWS',location:'Tokyo, Japan',workplace_type:'on-site'}
  ];
- const filters={workMode:'remote',location:'Brazil',contract:'full-time',salaryMin:'100000',currency:'USD',language:'English',requiredSkills:'AWS',desiredSkills:'Terraform',postedWithin:'7d',includeUnknown:true,now:Date.parse('2026-11-11T12:00:00Z')};
- assert.deepEqual(filterJobsForDisplay(jobs,filters).map(j=>j.id),['a','c']);
- assert.deepEqual(filterJobsForDisplay(jobs,{...filters,includeUnknown:false}).map(j=>j.id),['a']);
+ const filters={locations:['brazil','lisbon, portugal'],workModes:['remote','hybrid']};
+ assert.deepEqual(filterJobsForDisplay(jobs,filters).map(j=>j.id),['a','b','c']);
+ assert.deepEqual(filterJobsForDisplay(jobs,{locations:['Tokyo, Japan'],workModes:['onsite']}).map(j=>j.id),['d']);
+ assert.deepEqual(filterJobsForDisplay(jobs,{skills:'AWS'}).map(j=>j.id),['a','d']);
  assert.equal(jobs[0].score,88);
 });
-test('unknown job attributes are not excluded unless the user opts out',()=>{
+test('unknown location and work model remain visible when those filters are active',()=>{
  const job={id:'unknown',score:61,title:'Role',description:'Description without conditions'};
- assert.equal(filterJobsForDisplay([job],{workMode:'remote',includeUnknown:true}).length,1);
- assert.equal(filterJobsForDisplay([job],{workMode:'remote',includeUnknown:false}).length,0);
+ assert.equal(filterJobsForDisplay([job],{locations:['Brazil'],workModes:['remote']}).length,1);
 });
-test('filter UI exposes the eight requested categories and excludes source/seniority filters',()=>{
- for(const id of ['displayWorkMode','displayLocation','displayGeoEligibility','displayContract','displaySalaryMin','displaySalaryMax','displayCurrency','displayLanguage','displayTravel','displayRequiredSkills','displayDesiredSkills','displayPostedWithin','displayIncludeUnknown','clearDisplayFilters'])assert.match(html,new RegExp('id="'+id+'"'));
+test('filter UI exposes only location, work model and full-description keyword filters',()=>{
+ for(const id of ['displayWorkMode','displayLocation','displaySkills','clearDisplayFilters'])assert.match(html,new RegExp('id="'+id+'"'));
+ for(const id of ['displayGeoEligibility','displayContract','displaySalaryMin','displaySalaryMax','displayCurrency','displayLanguage','displayTravel','displayRequiredSkills','displayDesiredSkills','displayPostedWithin','displayIncludeUnknown'])assert.doesNotMatch(html,new RegExp('id="'+id+'"'));
+ assert.match(html,/multiple/);
  assert.doesNotMatch(html,/id="displaySeniority"|id="displayCompany"|id="displayATS"/);
 });
 test('display filters run after the stored result set and do not recalculate matching',()=>{
  assert.match(app,/jobs=filterJobsForDisplay\(jobs,displayFilterValues\(\)\)/);
  assert.match(app,/displayAttributes:deriveJobAttributes\(j\)/);
  assert.match(app,/scoreJob\(j,c,state\.profile\)/);
+ assert.match(app,/refreshDisplayFilterOptions\(\)/);
 });
-
 
 test('ATS normalizers retain published date, workplace, contract and salary metadata',()=>{
  const board={company:'Example',board:'example'};
