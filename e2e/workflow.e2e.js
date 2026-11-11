@@ -80,7 +80,7 @@ test('complete browser workflow: setup → candidate → job search → STAR →
     assert.equal(await page.locator('#candidateName').inputValue(), 'Alex Example');
     assert.match(await page.locator('#candidateSkills').inputValue(), /Python/i);
 
-    await page.locator('[data-step-goto="search"]').click();
+    await page.getByRole('button', { name: /Continue to job search/ }).click();
     assert.equal(await page.locator('#panel-search').isVisible(), true);
     const boards = page.locator('[data-board-check]');
     const count = await boards.count();
@@ -90,7 +90,7 @@ test('complete browser workflow: setup → candidate → job search → STAR →
     assert.equal(await page.locator('#jobResults .job-card').count(), 1);
     assert.match(await page.locator('#searchStatus').textContent(), /complete|found|checked/i);
 
-    await page.locator('[data-step-goto="star"]').click();
+    await page.getByRole('button', { name: /Continue to STAR prep/ }).click();
     assert.equal(await page.locator('#panel-star').isVisible(), true);
     await page.locator('#addStar').click();
     const story = page.locator('.story-card').first();
@@ -102,7 +102,7 @@ test('complete browser workflow: setup → candidate → job search → STAR →
     await story.locator('[data-story-verify]').click();
     await page.getByText('VERIFIED BY CANDIDATE').waitFor();
 
-    await page.locator('[data-step-goto="agent"]').click();
+    await page.getByRole('button', { name: /Continue to local agent/ }).click();
     assert.equal(await page.locator('#panel-agent').isVisible(), true);
     await page.locator('[data-preview-file="candidate-profile.json"]').click();
     await page.locator('#agentFileDialog').waitFor({ state: 'visible' });
