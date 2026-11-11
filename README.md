@@ -10,7 +10,8 @@ TechJobScout Lite is a static HTML/CSS/JavaScript application. It has no applica
 - Configure an LLM in Step 0, then extract a structured candidate profile and refresh search preferences whenever a new CV is uploaded (with explicit per-upload consent); local extraction remains available as a fallback.
 - Search public job-board APIs for Greenhouse, Ashby, Lever, Workable, SmartRecruiters, Recruitee and Gupy.
 - Add company boards manually, including manual HTTPS links for Workday and other platforms.
-- Run explainable keyword/seniority/location fit scoring, filter and sort opportunities, inspect score components, preview cleaned job descriptions in-app and export matched jobs.
+- Run explainable keyword/seniority/location fit scoring, filter and sort opportunities, inspect score components, preview complete job descriptions in-app and export matched jobs.
+- Filter displayed opportunities locally by work model, location/geographic eligibility, contract type, salary range/currency, required language, travel expectations, required/desirable skills and publication date. These display-only filters never modify the original posting, Fit Score or viability criteria. Unspecified details remain included by default and can be excluded explicitly.
 - Prepare initial STAR drafts with a configured LLM after explicit per-request consent. Every generated story is marked as a draft for candidate verification.
 - Export an agent workspace as a ZIP or select individual files for download for Codex, Claude Code or compatible local agents.
 - Configure your own OpenAI, Gemini, Anthropic, DeepSeek or Moonshot Kimi API key and load models available to that key into a dropdown.\n- Advanced users can connect their own LiteLLM Proxy, Ollama, LM Studio or other OpenAI-compatible local endpoint. TechJobScout does not operate a shared gateway or pay for model usage.
