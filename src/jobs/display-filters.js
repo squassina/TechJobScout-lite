@@ -62,7 +62,7 @@ export function deriveJobAttributes(job = {}) {
  else if (includesAny(lower, [/\brelocation (?:assistance|support|package)\b/, /\bwill relocate\b/, /\brelocation offered\b/, /\baux[ií]lio.?mudan[cç]a\b/])) geographicEligibility = 'relocation';
  else if (workMode === 'remote' && includesAny(lower, [/\bworldwide\b/, /\banywhere in the world\b/, /\bglobal remote\b/, /\bwork from anywhere\b/])) geographicEligibility = 'worldwide';
  const languageKnown = includesAny(lower, [/\benglish (?:is )?(?:required|proficiency|fluent)\b/, /\bportuguese (?:is )?(?:required|proficiency|fluent)\b/, /\bspanish (?:is )?(?:required|proficiency|fluent)\b/, /\bfrench (?:is )?(?:required|proficiency|fluent)\b/, /\bgerman (?:is )?(?:required|proficiency|fluent)\b/, /\b(japanese|mandarin|chinese|italian|dutch|arabic) (?:is )?(?:required|proficiency|fluent)\b/, /\blanguage requirements?\b/, /\bidioma (?:obrigat[oó]rio|exigido)\b/]);
- return {workMode,location:textOf(job.location),geographicEligibility,contract,salaryMin,salaryMax,salaryCurrency,salaryKnown,languageText:languageKnown?description:'',travel,requiredText,desiredText,postedAt:first(job.createdAt,job.created_at,job.publishedAt,job.published_at,job.published,job.updatedAt,job.updated_at,job.releasedAt,job.released_at,null)};
+ return {workMode,location:textOf(job.location),geographicEligibility,contract,salaryMin,salaryMax,salaryCurrency,salaryKnown,languageText:languageKnown?description:'',travel,requiredText,desiredText,postedAt:first(job.createdAt,job.created_at,job.publishedAt,job.published_at,job.published,job.releasedAt,job.released_at,null)};
 }
 const terms = value => String(value || '').split(/[,;\n]/).map(x=>x.trim()).filter(Boolean);
 const matchesTerms = (source, query) => terms(query).every(term => hasTerm(term, source));
@@ -80,8 +80,8 @@ export function filterJobsForDisplay(jobs, filters = {}) {
   if (filters.contract && filters.contract !== 'all' && (a.contract ? a.contract !== filters.contract : !includeUnknown)) return false;
   if (filters.currency && filters.currency !== 'all' && (a.salaryCurrency ? a.salaryCurrency !== filters.currency : !includeUnknown)) return false;
   const min = Number(filters.salaryMin), max = Number(filters.salaryMax);
-  if (filters.salaryMin && (!a.salaryKnown ? !includeUnknown : (a.salaryMax ?? a.salaryMin) < min)) return false;
-  if (filters.salaryMax && (!a.salaryKnown ? !includeUnknown : (a.salaryMin ?? a.salaryMax) > max)) return false;
+  if (filters.salaryMin && filters.currency !== 'all' && (!a.salaryKnown ? !includeUnknown : (a.salaryMax ?? a.salaryMin) < min)) return false;
+  if (filters.salaryMax && filters.currency !== 'all' && (!a.salaryKnown ? !includeUnknown : (a.salaryMin ?? a.salaryMax) > max)) return false;
   if (filters.language && (!a.languageText ? !includeUnknown : !matchesTerms(a.languageText, filters.language))) return false;
   if (filters.travel && filters.travel !== 'all' && (a.travel ? a.travel !== filters.travel : !includeUnknown)) return false;
   if (filters.requiredSkills && (!a.requiredText ? !includeUnknown : !matchesTerms(a.requiredText, filters.requiredSkills))) return false;
