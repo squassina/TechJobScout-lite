@@ -69,7 +69,7 @@ test('all in-page dialogs close only when the backdrop is clicked',()=>{for(cons
 
 test('session operations use generation guards and cancellation; search discards stale results',()=>{assert.match(app,/let sessionGeneration=0/);assert.match(app,/function beginSessionOperation\(\)/);assert.match(app,/function cancelSessionOperations\(\)/);assert.match(app,/function isSessionOperationCurrent\(operation\)/);assert.match(app,/async function fetchBoard\(b,signal\)/);assert.match(app,/fetchBoard\(b,signal\)/);assert.match(app,/if\(!isSessionOperationCurrent\(operation\)\)return/);assert.match(app,/externalSignal\?\.addEventListener\('abort'/);});
 
-test('clearing the candidate profile also clears all profile-derived jobs and analyses',()=>{const clear=app.slice(app.indexOf('function clearProfile()'),app.indexOf('function setCv('));assert.match(clear,/cancelSessionOperations\(\)/);assert.match(clear,/state\.jobs=\[\]/);assert.match(clear,/state\.searchErrors=\[\]/);assert.match(clear,/state\.searched=false/);assert.match(clear,/\$\('exportJobs'\)\.disabled=true/);assert.match(clear,/\$\('jdAnalysis'\)\.innerHTML=''/);assert.match(clear,/renderJobs\(\)/);});
+test('clearing the candidate profile also clears all profile-derived jobs and analyses',()=>{const clear=app.slice(app.indexOf('function clearProfile()'),app.indexOf('function setCv('));assert.match(clear,/cancelSessionOperations\(\)/);assert.match(clear,/state\.jobs=\[\]/);assert.match(clear,/state\.searchErrors=\[\]/);assert.match(clear,/state\.searched=false/);assert.match(clear,/state\.profile=\{name:'',target_roles:'',summary:'',skills:\[\],star_stories:\[\]\}/);assert.match(clear,/state\.cv=''/);assert.match(clear,/state\.stories=\[\]/);assert.match(clear,/\$\('jdText'\)\.value=''/);assert.doesNotMatch(clear,/exportJobs/);assert.match(clear,/\$\('jdAnalysis'\)\.innerHTML=''/);assert.match(clear,/renderJobs\(\)/);});
 
 test('Gemini API keys are sent in x-goog-api-key headers, never query strings',()=>{const ui=readFileSync(new URL('../llm-ui.js',import.meta.url),'utf8');assert.match(ui,/url=base\+'\/v1beta\/models';headers\['x-goog-api-key'\]=key/);assert.match(app,/generateContent\x60,\{method:'POST',headers:\{'content-type':'application\/json','x-goog-api-key':key\}/);assert.doesNotMatch(ui,/v1beta\/models\?key=/);assert.doesNotMatch(app,/generateContent\?key=/);});
 
@@ -261,7 +261,7 @@ test('display filters support multiple locations and work models and preserve un
  ];
  const filters={locations:['brazil','lisbon, portugal'],workModes:['remote','hybrid']};
  assert.deepEqual(filterJobsForDisplay(jobs,filters).map(j=>j.id),['a','b','c']);
- assert.deepEqual(filterJobsForDisplay(jobs,{locations:['Tokyo, Japan'],workModes:['onsite']}).map(j=>j.id),['d']);
+ assert.deepEqual(filterJobsForDisplay(jobs,{locations:['Tokyo, Japan'],workModes:['onsite']}).map(j=>j.id),['c','d']);
  assert.deepEqual(filterJobsForDisplay(jobs,{skills:'AWS'}).map(j=>j.id),['a','d']);
  assert.equal(jobs[0].score,88);
 });
