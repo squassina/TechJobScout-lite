@@ -5,6 +5,7 @@ import { words, hasTerm, safeHref } from '../src/core/text.js';
 import { locationAllowed, isLikelyRelevant, scoreJob } from '../src/jobs/matching.js';
 import { normalizeJobs, stripHtml } from '../src/ats/normalizers.js';
 import { clusterFor, extractDemands, jobKey } from '../src/jobs/analysis.js';
+import { deriveJobAttributes, filterJobsForDisplay } from '../src/jobs/display-filters.js';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8'),css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 test('native ES module entrypoint',()=>{assert.match(html,/<script type="module" src="app.js"><\/script>/);assert.ok(readFileSync(new URL('../styles.css',import.meta.url),'utf8').length>1000);});
 test('text helpers normalize accents and reject unsafe URLs',()=>{assert.equal(words('Tecnologia Ágil'),'tecnologia agil');assert.equal(hasTerm('data science','Senior Data Science Lead'),true);assert.equal(safeHref('javascript:alert(1)'),'#');});
@@ -242,3 +243,59 @@ test('workflow step indicators share top alignment across every step',()=>{asser
 test('STAR manual-add action is separated from the empty-state and explanatory note',()=>{assert.match(css,/#panel-star > \.story-list \+ \.row\.between\s*\{[\s\S]*?gap:\s*16px;[\s\S]*?margin-top:\s*16px;/);assert.match(css,/@media \(max-width: 520px\)[\s\S]*?#panel-star > \.story-list \+ \.row\.between\s*\{\s*align-items:\s*flex-start;\s*flex-direction:\s*column;/);});
 test('agent export buttons and privacy note have clear vertical separation',()=>{assert.match(css,/#panel-agent \.agent-export-card > \.btn-block \+ \.btn-block\s*\{\s*margin-top:\s*12px;/);assert.match(css,/#panel-agent \.agent-privacy-note\s*\{\s*margin-top:\s*14px;/);});
 test('job board add action is separated from the board list',()=>{assert.match(css,/#panel-search \.search-layout > \.card > \.row\.between\s*\{[\s\S]*?margin-bottom:\s*14px;/);});
+
+
+test('display filters derive only reliable location and explicit work model attributes',()=>{
+ const job={title:'Cloud Architect',location:'São Paulo, Brazil',description:'Remote position. Full-time. AWS and Kubernetes.'};
+ const attrs=deriveJobAttributes(job);
+ assert.equal(attrs.workMode,'remote');assert.equal(attrs.location,'São Paulo, Brazil');
+ assert.deepEqual(Object.keys(attrs).sort(),['location','workMode']);
+ assert.equal(job.description.includes('Full-time.'),true);
+});
+test('display filters support multiple locations and work models and preserve unknown data',()=>{
+ const jobs=[
+  {id:'a',score:88,description:'Remote role. AWS and Kubernetes',location:'Brazil',remote:true},
+  {id:'b',score:72,description:'Hybrid role. Python',location:'Lisbon, Portugal',workplace_type:'hybrid'},
+  {id:'c',score:65,description:'Details not provided',location:'',createdAt:null},
+  {id:'d',score:60,description:'On-site role. AWS',location:'Tokyo, Japan',workplace_type:'on-site'}
+ ];
+ const filters={locations:['brazil','lisbon, portugal'],workModes:['remote','hybrid']};
+ assert.deepEqual(filterJobsForDisplay(jobs,filters).map(j=>j.id),['a','b','c']);
+ assert.deepEqual(filterJobsForDisplay(jobs,{locations:['Tokyo, Japan'],workModes:['onsite']}).map(j=>j.id),['d']);
+ assert.deepEqual(filterJobsForDisplay(jobs,{skills:'AWS'}).map(j=>j.id),['a','d']);
+ assert.equal(jobs[0].score,88);
+});
+test('unknown location and work model remain visible when those filters are active',()=>{
+ const job={id:'unknown',score:61,title:'Role',description:'Description without conditions'};
+ assert.equal(filterJobsForDisplay([job],{locations:['Brazil'],workModes:['remote']}).length,1);
+});
+test('filter UI exposes only location, work model and full-description keyword filters',()=>{
+ for(const id of ['displayWorkMode','displayLocation','displaySkills','clearDisplayFilters'])assert.match(html,new RegExp('id="'+id+'"'));
+ for(const id of ['displayGeoEligibility','displayContract','displaySalaryMin','displaySalaryMax','displayCurrency','displayLanguage','displayTravel','displayRequiredSkills','displayDesiredSkills','displayPostedWithin','displayIncludeUnknown'])assert.doesNotMatch(html,new RegExp('id="'+id+'"'));
+ assert.match(html,/multiple/);
+ assert.doesNotMatch(html,/id="exportJobs"|Export jobs JSON/);
+ assert.doesNotMatch(app,/exportJobs/);
+ assert.doesNotMatch(html,/id="displaySeniority"|id="displayCompany"|id="displayATS"/);
+});
+test('display filters run after the stored result set and do not recalculate matching',()=>{
+ assert.match(app,/jobs=filterJobsForDisplay\(jobs,displayFilterValues\(\)\)/);
+ assert.match(app,/displayAttributes:deriveJobAttributes\(j\)/);
+ assert.match(app,/scoreJob\(j,c,state\.profile\)/);
+ assert.match(app,/refreshDisplayFilterOptions\(\)/);
+});
+
+test('ATS normalizers retain published date, workplace, contract and salary metadata',()=>{
+ const board={company:'Example',board:'example'};
+ const greenhouse=normalizeJobs('greenhouse',{jobs:[{id:1,title:'Architect',absolute_url:'https://example.com/job',content:'Full-time',location:{name:'Remote'},created_at:'2026-11-10T00:00:00Z',employment_type:'Full-time',salary:{min:100000,max:150000,currency:'USD'}}]},board)[0];
+ assert.equal(greenhouse.createdAt,'2026-11-10T00:00:00Z');assert.equal(greenhouse.employment_type,'Full-time');assert.equal(greenhouse.salary.min,100000);assert.equal(greenhouse.salaryCurrency,'USD');
+ const ashby=normalizeJobs('ashby',{jobs:[{id:'a',title:'Engineer',jobUrl:'https://example.com/a',location:'Remote',isRemote:true,workplaceType:'Remote',employmentType:'Full-time',publishedAt:'2026-11-09T00:00:00Z'}]},board)[0];
+ assert.equal(ashby.workplace_type,'Remote');assert.equal(ashby.employment_type,'Full-time');assert.equal(ashby.publishedAt,'2026-11-09T00:00:00Z');
+});
+
+
+test('job search status panel does not expose a standalone jobs.json download',()=>{const start=html.indexOf('class="card search-side"');const end=html.indexOf('</div></div>',start);const panel=html.slice(start,end);assert.doesNotMatch(panel,/exportJobs|Export jobs JSON/);});
+
+
+test('display skills keywords uses a same-height wrapping textarea and updates results while typing',()=>{assert.match(html,/<textarea id="displaySkills" rows="4"/);assert.match(css,/\.display-filter-grid textarea\s*\{[\s\S]*?height:\s*112px;[\s\S]*?overflow-y:\s*auto;[\s\S]*?overflow-wrap:\s*anywhere;/);assert.match(app,/#jobDisplayFilters input, #jobDisplayFilters select, #jobDisplayFilters textarea/);});
+
+test('Build profile does not reference the removed export jobs control',()=>{assert.doesNotMatch(app,/\$\('exportJobs'\)/);assert.match(app,/\$\('parseCv'\)\.onclick=\(\)=>refreshProfileFromCv/);});

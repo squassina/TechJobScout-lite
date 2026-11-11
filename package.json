@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node --test",
     "test:e2e": "node --test e2e/workflow.e2e.js",
-    "check": "node --check app.js && node --check src/core/text.js && node --check src/jobs/matching.js && node --check src/jobs/analysis.js && node --check src/ats/normalizers.js && node --check src/ats/boards.js && node --check scripts/check-ats-boards.mjs && node --check llm-ui.js && node --check e2e/workflow.e2e.js",
+    "check": "node --check app.js && node --check src/core/text.js && node --check src/jobs/matching.js && node --check src/jobs/analysis.js && node --check src/jobs/display-filters.js && node --check src/ats/normalizers.js && node --check src/ats/boards.js && node --check scripts/check-ats-boards.mjs && node --check llm-ui.js && node --check e2e/workflow.e2e.js",
     "check:ats": "node scripts/check-ats-boards.mjs"
   }
 }
