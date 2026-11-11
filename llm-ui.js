@@ -17,6 +17,8 @@ const isCustom=()=>provider()==='openai-compatible';
 const usesAdvancedUrl=()=>isLocal()||isCustom();
 let debounce;
 let requestVersion=0;
+const MODEL_REQUEST_TIMEOUT_MS=15000;
+async function fetchModelList(url,options){let lastError;for(let attempt=0;attempt<2;attempt++){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),MODEL_REQUEST_TIMEOUT_MS);try{const response=await fetch(url,{...options,signal:controller.signal});if(![429,502,503,504].includes(response.status)||attempt===1)return response;await new Promise(resolve=>setTimeout(resolve,500));}catch(error){lastError=error;if(attempt===1)throw error;}finally{clearTimeout(timer);}}throw lastError||new Error('Model discovery failed.');}
 function baseUrl(){return usesAdvancedUrl()?($('baseUrl').value.trim()||defaults[provider()].base):defaults[provider()].base;}
 function status(message){$('settingsStatus').textContent=message;}
 function lockModel(message){const select=$('model');select.replaceChildren();const o=document.createElement('option');o.value='';o.textContent='Enter API key to load available models';select.append(o);select.disabled=true;$('modelHelp').textContent=message;}
@@ -45,7 +47,7 @@ async function loadModels(){
   else if(p==='gemini'){url=base+'/v1beta/models';headers['x-goog-api-key']=key;}
   else if(p==='anthropic'){url=base+'/v1/models';headers['x-api-key']=key;headers['anthropic-version']='2023-06-01';headers['anthropic-dangerous-direct-browser-access']='true';}
   else{url=base+'/v1/models';if(key)headers.Authorization='Bearer '+key;}
-  const response=await fetch(url,{headers});if(!response.ok)throw new Error('HTTP '+response.status+' — verify the key, provider and browser CORS access.');
+  const response=await fetchModelList(url,{headers});if(!response.ok)throw new Error('HTTP '+response.status+' — verify the key, provider and browser CORS access.');
   const data=await response.json();let names;
   if(isLocal())names=(data.models||[]).map(x=>x.name);
   else if(p==='gemini')names=(data.models||[]).filter(x=>(x.supportedGenerationMethods||[]).includes('generateContent')).map(x=>String(x.name||'').replace(/^models\//,'')).filter(id=>!/^gemini-(?:2\.0|2\.5)-/.test(id));
@@ -61,7 +63,7 @@ function updateProviderUi(){
  if($('apiKey').value.trim()||isLocal()||isCustom())loadModels();
 }
 function initModelUi(){
- $('provider').addEventListener('change',()=>{updateProviderUi();});
+ $('provider').addEventListener('change',()=>{requestVersion++;updateProviderUi();});
  $('apiKey').addEventListener('input',()=>{
   clearTimeout(debounce);const key=$('apiKey').value.trim();$('loadModels').disabled=!key&&!usesAdvancedUrl();
   if(!key&&!usesAdvancedUrl()){lockModel('Enter your API key to load available models.');return;}
