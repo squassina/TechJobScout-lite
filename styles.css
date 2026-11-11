@@ -1349,3 +1349,21 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
 .panel .dropzone .upload-icon {
   line-height: 1;
 }
+
+
+/* Compact per-board action menu and focused edit dialog */
+.board-list { overflow: visible; max-height: none; }
+.board-item { position: relative; min-width: 0; }
+.board-item > span { min-width: 0; overflow-wrap: anywhere; }
+.board-actions { position: relative; flex: 0 0 auto; margin-left: auto; }
+.board-actions > summary { display: grid; width: 27px; height: 27px; place-items: center; border: 1px solid transparent; border-radius: 7px; color: var(--muted); cursor: pointer; font-size: 19px; font-weight: 700; line-height: 1; list-style: none; }
+.board-actions > summary::-webkit-details-marker { display: none; }
+.board-actions[open] > summary, .board-actions > summary:hover { border-color: var(--border-strong); background: var(--surface-hover); color: var(--text); }
+.board-action-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; display: grid; min-width: 154px; gap: 3px; padding: 5px; border: 1px solid var(--border-strong); border-radius: 9px; background: var(--surface); box-shadow: 0 12px 28px #0006; }
+.board-action-menu button { padding: 8px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--text); text-align: left; font: inherit; font-size: 11px; cursor: pointer; }
+.board-action-menu button:hover { background: var(--surface-hover); }
+.board-action-menu button.danger { color: #f2a29b; }
+.dialog-actions { margin-top: 18px; }
+#editBoardDialog .dialog-body label { margin-bottom: 14px; }
+#editBoardDialog .dialog-body input, #editBoardDialog .dialog-body select { width: 100%; }
+@media (max-width: 560px) { .board-list { grid-template-columns: minmax(0, 1fr); } .dialog-actions { flex-wrap: wrap; } .dialog-actions .btn { flex: 1 1 120px; } }
