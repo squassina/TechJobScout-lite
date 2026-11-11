@@ -85,3 +85,52 @@ test('Fit Score breakdown preserves its total when the score is below the cap',(
 
 test('ATS failures are shown per company with platform and escaped diagnostic message',()=>{assert.match(html,/id="boardErrors"[^>]*aria-live="polite"/);assert.match(app,/function renderBoardErrors\(\)/);assert.match(app,/Source diagnostics/);assert.match(app,/esc\(item\.company\)/);assert.match(app,/esc\(item\.ats\)/);assert.match(app,/esc\(item\.error\|\|'Unknown error'\)/);assert.match(app,/renderBoardErrors\(\)/);});
 test('partial ATS failures remain visible while successful boards can still return jobs',()=>{assert.match(app,/state\.searchErrors\.push\(\{company:b\.company,ats:b\.ats,error:e\.message\}\)/);assert.match(app,/const settled=await Promise\.all\(targets\.map/);assert.match(app,/renderBoardErrors\(\)/);});
+
+test('evidence-based Fit Score has no base points and normalizes only evaluable criteria',()=>{
+ const p={target_roles:'Solutions Architect',skills:['cloud','azure'],resume_text:'Senior Solutions Architect. Led cloud architecture, Azure migrations and enterprise transformation for financial services clients. MBA.'};
+ const c={keywords:['cloud'],excluded_keywords:[],allowed_locations:[],excluded_locations:[]};
+ const j={title:'Senior Solutions Architect',description:'Requirements: cloud architecture, Azure, leadership, financial services. MBA preferred.',location:'Remote',remote:true};
+ const result=scoreJob(j,c,p);
+ assert.equal(result.score,100);
+ assert.equal(result.coverage,100);
+ assert.equal(result.components.some(x=>x.factor==='Base'),false);
+ assert.equal(result.components.reduce((sum,x)=>sum+(x.points||0),0),result.score);
+});
+test('unknown criteria are excluded from score denominator and reduce Assessment Coverage',()=>{
+ const p={target_roles:'Data Engineer',skills:['python'],resume_text:'Data Engineer with Python and SQL experience.'};
+ const c={keywords:[],excluded_keywords:[],allowed_locations:[],excluded_locations:[]};
+ const result=scoreJob({title:'Data Engineer',description:'Python and SQL required.',location:''},c,p);
+ assert.ok(result.coverage<100);
+ assert.ok(result.components.some(x=>x.status==='unknown'));
+ assert.equal(result.score,100);
+});
+test('missing candidate profile produces zero coverage and no assumed points',()=>{
+ const c={keywords:[],excluded_keywords:[],allowed_locations:[],excluded_locations:[]};
+ const result=scoreJob({title:'Senior Engineer',description:'Python, cloud and leadership required.'},c,{skills:[]});
+ assert.equal(result.coverage,0);
+ assert.equal(result.score,0);
+ assert.ok(result.components.every(x=>x.status==='unknown'));
+});
+test('seniority compares documented candidate level with the role level',()=>{
+ const c={keywords:[],excluded_keywords:[],allowed_locations:[],excluded_locations:[]};
+ const senior=scoreJob({title:'Director of Engineering',description:'Leadership required.'},c,{resume_text:'Senior Software Engineer. Individual contributor.'});
+ const aligned=scoreJob({title:'Senior Engineer',description:'Senior technical leadership.'},c,{resume_text:'Senior Software Engineer leading engineering teams.'});
+ assert.equal(senior.components.find(x=>x.id==='seniority').status,'evaluated');
+ assert.ok(senior.components.find(x=>x.id==='seniority').adherence<100);
+ assert.ok(aligned.components.find(x=>x.id==='seniority').adherence>senior.components.find(x=>x.id==='seniority').adherence);
+});
+test('eligibility is independent from Fit Score and reports incompatible or unknown conditions',()=>{
+ const c={keywords:[],excluded_keywords:[],allowed_locations:['Brazil'],excluded_locations:[]};
+ const result=scoreJob({title:'Cloud Architect',description:'English required; work authorization required.',location:'New York, US'},c,{resume_text:'Cloud Architect in Brazil.'});
+ assert.equal(result.eligibility.location.status,'not_met');
+ assert.equal(result.eligibility.language.status,'unknown');
+ assert.equal(result.eligibility.workAuthorization.status,'unknown');
+ assert.equal(result.eligibility.modality.status,'unknown');
+});
+test('Fit Score components expose job and candidate evidence for traceability',()=>{
+ const c={keywords:[],excluded_keywords:[],allowed_locations:[],excluded_locations:[]};
+ const result=scoreJob({title:'Cloud Architect',description:'Cloud architecture and Azure required.'},c,{resume_text:'Cloud architect with Azure architecture experience.'});
+ const skills=result.components.find(x=>x.id==='skills');
+ assert.ok(skills.jobEvidence.includes('cloud'));
+ assert.ok(skills.candidateEvidence.includes('cloud'));
+});
