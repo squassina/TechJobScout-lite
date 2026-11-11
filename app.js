@@ -3,23 +3,12 @@ import { esc, safeHref, hasTerm } from './src/core/text.js';
 import { clusterFor, extractDemands, jobKey } from './src/jobs/analysis.js';
 import { locationAllowed, isLikelyRelevant, scoreJob } from './src/jobs/matching.js';
 import { stripHtml, normalizeJobs } from './src/ats/normalizers.js';
+import { DEFAULT_BOARDS as createDefaultBoards } from './src/ats/boards.js';
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
 const ATS = ['greenhouse','ashby','lever','workable','smartrecruiters','recruitee','gupy'];
-const DEFAULT_BOARDS = [
- // Board identifiers are taken from each company's public careers URL, not guessed from its name.
- ['Anthropic','greenhouse','anthropic'],
- ['Databricks','greenhouse','databricks'],
- ['MongoDB','greenhouse','mongodb'],
- ['Snowflake','manual','https://careers.snowflake.com/us/en'],
- ['Elastic','greenhouse','elastic'],
- ['Confluent','ashby','confluent'],
- ['Nubank','ashby','nubank'],
- ['CI&T','lever','ciandt'],
- ['GitLab','greenhouse','gitlab'],
- ['Datadog','greenhouse','datadog']
-].map(([company,ats,board])=>({company,ats,board,enabled:true,default:true}));
+const DEFAULT_BOARDS = createDefaultBoards();
 const PROVIDERS = {
  openai:{model:'chat-latest',base:'https://api.openai.com'},gemini:{model:'gemini-flash-latest',base:'https://generativelanguage.googleapis.com'},deepseek:{model:'deepseek-flash',base:'https://api.deepseek.com'},kimi:{model:'kimi-k2.5',base:'https://api.moonshot.cn'},
  anthropic:{model:'claude-sonnet-5',base:'https://api.anthropic.com'},ollama:{model:'llama3.1',base:'http://localhost:11434'},'openai-compatible':{model:'gpt-4o-mini',base:'http://localhost:4000'}
