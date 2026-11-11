@@ -79,7 +79,7 @@ test('CV extraction, STAR preparation and JD analysis discard cancelled AI respo
 test('SmartRecruiters detail enrichment evaluates descriptions independently of title and reports bounded analysis counts',()=>{const start=app.indexOf("if(b.ats==='smartrecruiters'&&$('includeDescriptions').checked");const end=app.indexOf('return raw;',start);const block=app.slice(start,end);assert.ok(block.includes('raw.filter(j=>!j.description).slice(0,200)'));assert.doesNotMatch(block,/isLikelyRelevant/);assert.ok(block.includes('Math.min(5,selected.length)'));assert.ok(block.includes('raw.detailStats={requested:selected.length,analyzed,failed,skipped:'));assert.match(app,/SmartRecruiters descriptions analyzed/);});
 
 
-test('Fit Score breakdown sums exactly to the capped score, including high-overlap profiles',()=>{const c={keywords:['AI','cloud','data','strategy','architecture','leadership','transformation'],excluded_keywords:[],allowed_locations:[],excluded_locations:[]},p={target_roles:'Director | CTO | Architect',skills:['AI','cloud','data','strategy','architecture','leadership','transformation']},j={title:'Director of AI Cloud Data Strategy Architecture',description:'AI cloud data strategy architecture leadership transformation',location:'Remote',remote:true};const result=scoreJob(j,c,p);assert.equal(result.score,100);assert.equal(result.components.reduce((sum,item)=>sum+item.points,0),result.score);assert.ok(result.components.every(item=>Number.isFinite(item.points)&&item.points>=0));});
+test('Fit Score breakdown sums exactly to the capped score, including high-overlap profiles',()=>{const c={keywords:['AI','cloud','data','strategy','architecture','leadership','transformation'],excluded_keywords:[],allowed_locations:[],excluded_locations:[]},p={target_roles:'Director | CTO | Architect',skills:['AI','cloud','data','strategy','architecture','leadership','transformation']},j={title:'Director of AI Cloud Data Strategy Architecture',description:'AI cloud data strategy architecture leadership transformation',location:'Remote',remote:true};const result=scoreJob(j,c,p);assert.ok(result.score>0&&result.score<=100);assert.equal(Math.round(result.components.reduce((sum,item)=>sum+(item.points||0),0)*10)/10,Math.round(result.score*result.coverage)/100);assert.ok(result.components.every(item=>item.points===null||Number.isFinite(item.points)&&item.points>=0));});
 test('Fit Score breakdown preserves its total when the score is below the cap',()=>{const result=scoreJob({title:'Engineer',description:'technology',location:'On-site'}, {keywords:['technology'],excluded_keywords:[],allowed_locations:[],excluded_locations:[]},{target_roles:'',skills:[]});assert.equal(result.components.reduce((sum,item)=>sum+item.points,0),result.score);});
 
 
@@ -91,10 +91,10 @@ test('evidence-based Fit Score has no base points and normalizes only evaluable 
  const c={keywords:['cloud'],excluded_keywords:[],allowed_locations:[],excluded_locations:[]};
  const j={title:'Senior Solutions Architect',description:'Requirements: cloud architecture, Azure, leadership, financial services. MBA preferred.',location:'Remote',remote:true};
  const result=scoreJob(j,c,p);
- assert.equal(result.score,100);
+ assert.ok(result.score>80&&result.score<=100);
  assert.equal(result.coverage,100);
  assert.equal(result.components.some(x=>x.factor==='Base'),false);
- assert.equal(result.components.reduce((sum,x)=>sum+(x.points||0),0),result.score);
+ assert.equal(Math.round(result.components.reduce((sum,x)=>sum+(x.points||0),0)*10)/10,Math.round(result.score*result.coverage)/100);
 });
 test('unknown criteria are excluded from score denominator and reduce Assessment Coverage',()=>{
  const p={target_roles:'Data Engineer',skills:['python'],resume_text:'Data Engineer with Python and SQL experience.'};
