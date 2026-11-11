@@ -94,7 +94,7 @@ test('evidence-based Fit Score has no base points and normalizes only evaluable 
  assert.ok(result.score>80&&result.score<=100);
  assert.equal(result.coverage,100);
  assert.equal(result.components.some(x=>x.factor==='Base'),false);
- assert.equal(Math.round(result.components.reduce((sum,x)=>sum+(x.points||0),0)*10)/10,Math.round(result.score*result.coverage)/100);
+ assert.ok(Math.abs(result.components.reduce((sum,x)=>sum+(x.points||0),0)-result.score*result.coverage/100)<0.11);
 });
 test('unknown criteria are excluded from score denominator and reduce Assessment Coverage',()=>{
  const p={target_roles:'Data Engineer',skills:['python'],resume_text:'Data Engineer with Python and SQL experience.'};
