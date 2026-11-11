@@ -142,8 +142,18 @@ function renderStories(){
    <footer class="story-card-footer"><span class="story-completion">${fields.filter(([key])=>String(s[key]||'').trim()).length} of 4 sections completed</span><div class="story-actions"><button class="btn btn-small btn-secondary" data-story-verify="${i}" ${complete?'':'disabled'}>Mark verified</button><button class="btn btn-small btn-danger" data-story-delete="${i}">Remove</button></div></footer>
   </article>`;
  }).join('');
- box.querySelectorAll('[data-story-field]').forEach(el=>el.onchange=()=>{const story=state.stories[+el.dataset.index];story[el.dataset.storyField]=el.value;story.status='edited';story.draft=true;renderStories();});
- box.querySelectorAll('[data-story-title]').forEach(el=>el.onchange=()=>{const story=state.stories[+el.dataset.storyTitle];story.title=el.value;story.status='edited';story.draft=true;renderStories();});
+ const markEdited=(story,card)=>{story.status='edited';story.draft=true;card.querySelector('.draft-label').textContent='EDITED · NOT VERIFIED';};
+ box.querySelectorAll('[data-story-field]').forEach(el=>el.oninput=()=>{
+  const story=state.stories[+el.dataset.index],card=el.closest('.story-card');
+  story[el.dataset.storyField]=el.value;markEdited(story,card);
+  const completed=fields.filter(([key])=>String(story[key]||'').trim()).length;
+  card.querySelector('.story-completion').textContent=`${completed} of 4 sections completed`;
+  card.querySelector('[data-story-verify]').disabled=completed!==4;
+ });
+ box.querySelectorAll('[data-story-title]').forEach(el=>el.oninput=()=>{
+  const story=state.stories[+el.dataset.storyTitle],card=el.closest('.story-card');
+  story.title=el.value;markEdited(story,card);
+ });
  box.querySelectorAll('[data-story-verify]').forEach(el=>el.onclick=()=>{const story=state.stories[+el.dataset.storyVerify];if(fields.every(([key])=>String(story[key]||'').trim())){story.status='verified';story.draft=false;renderStories();}});
  box.querySelectorAll('[data-story-delete]').forEach(el=>el.onclick=()=>{state.stories.splice(+el.dataset.storyDelete,1);renderStories();});
 }
