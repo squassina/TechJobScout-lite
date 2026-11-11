@@ -42,11 +42,18 @@ export function inspectBoardPayload(ats, data) {
   if (!Object.hasOwn(envelopes, ats)) return { valid: false, count: 0, reason: 'Unsupported ATS' };
   const path = envelopes[ats];
   const rows = path.length ? data?.[path[0]] : data;
-  if (!Array.isArray(rows)) return { valid: false, count: 0, reason: path.length ? `Expected an array at $. ${path[0]}`.replace('$ .', '$.') : 'Expected a JSON array' };
+  if (!Array.isArray(rows)) return { valid: false, count: 0, reason: path.length ? `Expected an array at $.${path[0]}` : 'Expected a JSON array' };
   const usable = rows.filter(job => {
-    const title = job?.title || job?.text || job?.name;
-    const url = job?.absolute_url || job?.jobUrl || job?.hostedUrl || job?.url || job?.shortlink || job?.careers_url;
-    return Boolean(title && url);
+    switch (ats) {
+      case 'greenhouse': return Boolean(job?.title && job?.absolute_url);
+      case 'ashby': return Boolean(job?.title && job?.jobUrl);
+      case 'lever': return Boolean(job?.text && job?.hostedUrl);
+      case 'workable': return Boolean(job?.title && (job?.url || job?.shortlink));
+      case 'smartrecruiters': return Boolean(job?.name && job?.id);
+      case 'recruitee': return Boolean(job?.title && (job?.careers_url || job?.slug));
+      case 'gupy': return Boolean(job?.name && (job?.jobUrl || job?.url));
+      default: return false;
+    }
   });
   return { valid: true, count: rows.length, usable: usable.length, reason: rows.length && !usable.length ? 'Rows returned, but no recognizable title + job URL pairs' : null };
 }
