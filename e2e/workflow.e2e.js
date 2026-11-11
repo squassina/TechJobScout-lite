@@ -63,7 +63,7 @@ test('complete browser workflow: setup → candidate → job search → STAR →
     await page.getByRole('tab', { name: /Setup/ }).waitFor();
     assert.equal(await page.locator('#panel-setup').isVisible(), true);
 
-    await page.locator('[data-step-goto="profile"]').click();
+    await page.getByRole('button', { name: /Continue to candidate profile/ }).click();
     assert.equal(await page.locator('#panel-profile').isVisible(), true);
 
     const cv = [
