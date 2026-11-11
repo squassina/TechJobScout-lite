@@ -34,3 +34,5 @@ test('provider defaults prefer rolling latest aliases where officially supported
 
 
 test('GitHub Pages artifact includes every browser entry module',()=>{const workflow=readFileSync(new URL('../.github/workflows/deploy-pages.yml',import.meta.url),'utf8');assert.match(workflow,/cp index\.html styles\.css app\.js llm-ui\.js site\//);});
+
+test('design system defines one dark surface palette for all primary UI surfaces',()=>{const css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');for(const token of ['--page:','--surface:','--surface-inset:','--accent:','--text:','--border:'])assert.match(css,new RegExp(token));assert.match(css,/\.card, \.job-card, \.story-card\s*\{/);assert.doesNotMatch(css,/\.card\s*\{\s*background:\s*white/);});
