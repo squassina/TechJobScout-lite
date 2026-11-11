@@ -1107,3 +1107,222 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
     width:100%;
   }
 }
+
+
+/* Unified form system — shared geometry and responsive layout across workflow steps */
+:root {
+  --field-height: 42px;
+  --field-radius: var(--radius-sm);
+  --field-padding-x: 12px;
+  --form-gap: 14px;
+  --form-card-padding: 22px;
+}
+
+.panel,
+.panel > *,
+.panel .card,
+.panel .profile-grid,
+.panel .search-layout,
+.panel .agent-grid {
+  min-width: 0;
+}
+
+.panel > .card,
+.panel .profile-grid > .card,
+.panel .search-layout > .card,
+.panel .agent-grid > .card,
+.panel > .ai-consent,
+.panel > .card.compact {
+  width: 100%;
+  min-width: 0;
+}
+
+.profile-grid,
+.search-layout,
+.agent-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 18px;
+}
+
+.panel .card {
+  border-radius: var(--radius-lg);
+  padding: var(--form-card-padding);
+}
+
+.panel .card-title {
+  min-height: 20px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.panel label:not(.inline-check):not(.dropzone):not(.agent-file) {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  margin: 0 0 var(--form-gap);
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+.panel select,
+.panel textarea:not(.agent-preview textarea):not(.agent-file-dialog-body textarea) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: var(--field-height);
+  padding: 10px var(--field-padding-x);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--field-radius);
+  background: var(--surface-inset);
+  color: var(--text);
+  font: 13px/1.45 'DM Sans', sans-serif;
+  box-sizing: border-box;
+}
+
+.panel textarea:not(.agent-preview textarea):not(.agent-file-dialog-body textarea) {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
+.panel select:focus,
+.panel textarea:not(.agent-preview textarea):not(.agent-file-dialog-body textarea):focus {
+  border-color: var(--accent-bright);
+  outline: none;
+  box-shadow: 0 0 0 3px #25ddb11a;
+}
+
+.panel input::placeholder,
+.panel textarea::placeholder {
+  color: #719b89;
+  opacity: 1;
+}
+
+.panel input[type="checkbox"],
+.panel input[type="radio"],
+.panel input[type="range"],
+.panel input[type="file"] {
+  width: auto;
+  min-height: 0;
+  padding: 0;
+}
+
+.panel .inline-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.panel .inline-check input[type="checkbox"] {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.panel .criteria-grid {
+  gap: 12px 18px;
+}
+
+.panel .criteria-grid label {
+  margin-bottom: 0;
+}
+
+.panel .criteria-grid input[type="range"] {
+  width: 100%;
+  min-height: 18px;
+  padding: 0;
+}
+
+.panel .dropzone {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.panel .setup-grid {
+  width: 100%;
+  min-width: 0;
+}
+
+.panel .setup-grid > label,
+.panel .setup-grid .advanced-connection {
+  width: 100%;
+  min-width: 0;
+}
+
+.panel .search-side .stat,
+.panel .agent-export-card .agent-export-summary {
+  min-width: 0;
+}
+
+.panel .results-head select {
+  width: auto;
+  min-width: 150px;
+  min-height: var(--field-height);
+}
+
+.panel .story-card input:not([type="checkbox"]),
+.panel .story-card textarea,
+.panel .story-card select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.panel .story-card .story-title-input {
+  min-height: var(--field-height);
+}
+
+.panel .agent-export-card select {
+  width: 100%;
+}
+
+.panel .agent-preview textarea,
+.panel .agent-file-dialog-body textarea {
+  min-height: 280px;
+  font: 12px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+@media (max-width: 760px) {
+  .profile-grid,
+  .search-layout,
+  .agent-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .panel .card {
+    padding: 18px;
+  }
+
+  .panel .results-head select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .panel .card {
+    padding: 15px;
+  }
+
+  .panel .criteria-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel .row.between,
+  .panel .search-controls {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+}
