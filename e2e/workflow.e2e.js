@@ -75,7 +75,7 @@ test('complete browser workflow: setup → candidate → job search → STAR →
     ].join('\\n');
     await page.locator('#cvText').fill(cv);
     await page.locator('#parseCv').click();
-    await page.locator('[data-step-goto="profile"]').click();
+    await page.getByRole('button', { name: /Continue to candidate profile/ }).click();
     await page.locator('#candidateName').waitFor();
     assert.equal(await page.locator('#candidateName').inputValue(), 'Alex Example');
     assert.match(await page.locator('#candidateSkills').inputValue(), /Python/i);
