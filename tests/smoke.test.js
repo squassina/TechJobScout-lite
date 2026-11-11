@@ -84,7 +84,7 @@ test('Fit Score breakdown preserves its total when the score is below the cap',(
 
 
 test('ATS failures are shown per company with platform and escaped diagnostic message',()=>{assert.match(html,/id="boardErrors"[^>]*aria-live="polite"/);assert.match(app,/function renderBoardErrors\(\)/);assert.match(app,/Source diagnostics/);assert.match(app,/esc\(item\.company\)/);assert.match(app,/esc\(item\.ats\)/);assert.match(app,/esc\(item\.error\|\|'Unknown error'\)/);assert.match(app,/renderBoardErrors\(\)/);});
-test('partial ATS failures remain visible while successful boards can still return jobs',()=>{assert.match(app,/state\.searchErrors\.push\(\{company:b\.company,ats:b\.ats,error:e\.message\}\)/);assert.match(app,/const settled=await Promise\.all\(targets\.map/);assert.match(app,/renderBoardErrors\(\)/);});
+test('partial ATS failures remain visible while successful boards can still return jobs',()=>{assert.match(app,/state\.searchErrors\.push\(\{company:b\.company,ats:b\.ats,error:message\}\)/);assert.match(app,/const settled=await Promise\.all\(targets\.map/);assert.match(app,/renderBoardErrors\(\)/);});
 
 test('evidence-based Fit Score has no base points and normalizes only evaluable criteria',()=>{
  const p={target_roles:'Solutions Architect',skills:['cloud','azure'],resume_text:'Senior Solutions Architect. Led cloud architecture, Azure migrations and enterprise transformation for financial services clients. MBA.'};
