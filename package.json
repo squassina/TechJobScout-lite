@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "check": "node --check app.js && node --check src/core/text.js && node --check src/jobs/matching.js && node --check src/jobs/analysis.js && node --check src/ats/normalizers.js && node --check src/ats/boards.js && node --check scripts/check-ats-boards.mjs && node --check llm-ui.js",
+    "test:e2e": "node --test tests/e2e.test.js",
+    "check": "node --check app.js && node --check src/core/text.js && node --check src/jobs/matching.js && node --check src/jobs/analysis.js && node --check src/ats/normalizers.js && node --check src/ats/boards.js && node --check scripts/check-ats-boards.mjs && node --check llm-ui.js && node --check tests/e2e.test.js",
     "check:ats": "node scripts/check-ats-boards.mjs"
   }
 }
