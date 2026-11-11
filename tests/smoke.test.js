@@ -38,7 +38,7 @@ test('GitHub Pages artifact includes every browser entry module',()=>{const work
 
 test('design system defines one dark surface palette for all primary UI surfaces',()=>{const css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');for(const token of ['--page:','--surface:','--surface-inset:','--accent:','--text:','--border:'])assert.match(css,new RegExp(token));assert.match(css,/\.card, \.job-card, \.story-card\s*\{/);assert.doesNotMatch(css,/\.card\s*\{\s*background:\s*white/);});
 
-test('LLM setup has a single explicit test-and-save action; setup is not duplicated',()=>{assert.match(html,/id="testProvider"[\\s\\S]*?id="testProviderLabel">Test &amp; save connection/);assert.doesNotMatch(html,/id="saveSettings"|Save LLM setup/);});
+test('LLM setup has a single explicit test-and-save action; setup is not duplicated',()=>{assert.match(html,/id="testProviderLabel">Test &amp; save connection/);assert.match(html,/id="testProvider"[^>]*class="btn btn-primary llm-test-button"/);assert.doesNotMatch(html,/id="saveSettings"|Save LLM setup/);});
 
 test('header does not duplicate the AI setup navigation action',()=>{assert.doesNotMatch(html,/id="settingsOpen"|LLM setup/);});
 
