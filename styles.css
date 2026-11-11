@@ -1326,3 +1326,26 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
     flex-wrap: wrap;
   }
 }
+
+
+/* Keep the CV upload prompt centered inside its drop target */
+.panel .dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.panel .dropzone > span,
+.panel .dropzone > strong {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+}
+
+.panel .dropzone .upload-icon {
+  line-height: 1;
+}
