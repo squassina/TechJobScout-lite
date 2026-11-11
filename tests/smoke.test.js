@@ -38,7 +38,7 @@ test('GitHub Pages artifact includes every browser entry module',()=>{const work
 
 test('design system defines one dark surface palette for all primary UI surfaces',()=>{const css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');for(const token of ['--page:','--surface:','--surface-inset:','--accent:','--text:','--border:'])assert.match(css,new RegExp(token));assert.match(css,/\.card, \.job-card, \.story-card\s*\{/);assert.doesNotMatch(css,/\.card\s*\{\s*background:\s*white/);});
 
-test('LLM setup has a single explicit test-and-save action; setup is not duplicated',()=>{assert.match(html,/id="testProvider">Test &amp; save connection/);assert.doesNotMatch(html,/id="saveSettings"|Save LLM setup/);});
+test('LLM setup has a single explicit test-and-save action; setup is not duplicated',()=>{assert.match(html,/id="testProviderLabel">Test &amp; save connection/);assert.match(html,/class="btn btn-primary llm-test-button"/);assert.doesNotMatch(html,/id="saveSettings"|Save LLM setup/);});
 
 test('header does not duplicate the AI setup navigation action',()=>{assert.doesNotMatch(html,/id="settingsOpen"|LLM setup/);});
 
@@ -212,3 +212,9 @@ test('ATS live validator treats a valid empty board as reachable but a non-empty
 
 
 test('default ATS board registry is imported as an array, not invoked as a factory',()=>{assert.match(app,/import \{ DEFAULT_BOARDS as createDefaultBoards/);assert.match(app,/const DEFAULT_BOARDS = createDefaultBoards;/);assert.doesNotMatch(app,/createDefaultBoards\(\)/);});
+
+
+test('LLM test button has an accessible animated loading state and restores its label after completion',()=>{const start=app.indexOf('async function testProvider()'),end=app.indexOf('function addBoardDialog()',start),fn=app.slice(start,end);assert.match(html,/id="testProviderLabel"/);assert.match(html,/class="button-spinner"/);assert.match(fn,/button\.disabled=true/);assert.match(fn,/classList\.add\('is-loading'\)/);assert.match(fn,/setAttribute\('aria-busy','true'\)/);assert.match(fn,/Testing connection…/);assert.match(fn,/finally\{button\.disabled=false/);assert.match(fn,/removeAttribute\('aria-busy'\)/);assert.match(css,/@keyframes llm-button-spin/);assert.match(css,/@media \(prefers-reduced-motion: reduce\)/);});
+
+
+test('LLM settings are persisted only after a successful provider connection test',()=>{const start=app.indexOf('async function testProvider()'),end=app.indexOf('function addBoardDialog()',start),fn=app.slice(start,end);assert.match(fn,/readProviderSettings\(\)/);assert.match(fn,/applyProviderSettings\(config\)/);assert.ok(fn.indexOf('await aiRequest')<fn.indexOf('persistProviderSettings(config)'),'persist must occur after successful AI request');assert.match(fn,/catch\(error\)[\s\S]*?state\.provider=previous\.provider/);assert.match(fn,/Connection test failed\. Settings were not saved/);assert.match(app,/function persistProviderSettings\(config\)/);assert.doesNotMatch(fn,/saveSettings\(\)/);});
