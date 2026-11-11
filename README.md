@@ -89,6 +89,11 @@ The app remains static and uses native ES modules without a bundler. ATS results
 ```bash
 npm run check
 npm test
+
+# Browser end-to-end workflow (requires Playwright + Chromium)
+npm install --no-save playwright
+npx playwright install chromium
+npm run test:e2e
 ```
 
 Run the application through a static HTTP server and test each configured ATS board, since external APIs and CORS policies are outside the repository's control.
