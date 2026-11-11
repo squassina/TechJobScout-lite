@@ -1482,3 +1482,12 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
     flex: 1 1 140px;
   }
 }
+
+
+/* CV editor actions need clear separation from the text area above */
+#panel-profile .upload-card > #cvText + .row {
+  margin-top: 14px;
+}
+#panel-profile .upload-card > #cvText + .row > .btn {
+  flex: 0 0 auto;
+}
