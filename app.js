@@ -1,5 +1,6 @@
 /* TechJobScout Lite — browser-only application. No session data is written to storage. */
-import { esc, safeHref, words, hasTerm } from './src/core/text.js';
+import { esc, safeHref, hasTerm } from './src/core/text.js';
+import { clusterFor, extractDemands, jobKey } from './src/jobs/analysis.js';
 import { locationAllowed, isLikelyRelevant, scoreJob } from './src/jobs/matching.js';
 import { stripHtml, normalizeJobs } from './src/ats/normalizers.js';
 (() => {
@@ -77,9 +78,9 @@ async function fetchBoard(b,signal){
  return raw;
 }
 function enrichJob(j){j={...j,description:stripHtml(j.description||'')};const c=currentCriteria();const s=scoreJob(j,c,state.profile);const cluster=clusterFor(j.title);const candidateSkills=state.profile.skills||[];const overlap=candidateSkills.filter(k=>hasTerm(k,j.description+' '+j.title));return {...j,...s,cluster,overlap,demands:extractDemands(j.description)};}
-function clusterFor(title){const t=words(title);const clusters=[['AI & GenAI Transformation',['ai','artificial intelligence','genai','machine learning','copilot','llm'],'AI Strategy | Applied AI & Enterprise Transformation'],['Technology Strategy & Advisory',['field cto','strategist','advisory','technology strategy','solutions architect'],'Technology Strategist | Enterprise Advisory & Architecture'],['Cloud, Data & Architecture',['cloud','data','architect','platform','infrastructure'],'Enterprise Technology Architect | Cloud, Data & Platforms'],['Product & Engineering Leadership',['product','engineering','software','developer','technical lead'],'Technology Leader | Product, Engineering & Delivery']];for(const [name,terms,headline] of clusters)if(terms.some(k=>hasTerm(k,t)))return {name,sub_headline:headline};return {name:'General Technology',sub_headline:'Technology Professional | Strategy, Delivery & Innovation'};}
-function extractDemands(desc){const lines=(desc||'').split(/\n|\r/).map(x=>x.trim()).filter(Boolean);const bullets=lines.filter(x=>/^[-•*]/.test(x)).map(x=>x.replace(/^[-•*]\s*/,'' )).filter(x=>x.length>12);return [...new Set(bullets)].slice(0,5);}
-function jobKey(j){return `${j.ats}:${j.company}:${j.id||j.url}`}
+
+
+
 async function runSearch(){
  profileFromForm();const targets=state.boards.filter(b=>b.enabled);if(!targets.length){toast('Select at least one company board.');return;}
  if(activeSearchOperation)activeSearchOperation.controller.abort();const operation=beginSessionOperation(),signal=operation.controller.signal;activeSearchOperation=operation;
