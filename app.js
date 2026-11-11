@@ -3,23 +3,12 @@ import { esc, safeHref, hasTerm } from './src/core/text.js';
 import { clusterFor, extractDemands, jobKey } from './src/jobs/analysis.js';
 import { locationAllowed, isLikelyRelevant, scoreJob } from './src/jobs/matching.js';
 import { stripHtml, normalizeJobs } from './src/ats/normalizers.js';
+import { DEFAULT_BOARDS as createDefaultBoards, boardUrl as buildBoardUrl } from './src/ats/boards.js';
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
 const ATS = ['greenhouse','ashby','lever','workable','smartrecruiters','recruitee','gupy'];
-const DEFAULT_BOARDS = [
- // Board identifiers are taken from each company's public careers URL, not guessed from its name.
- ['Anthropic','greenhouse','anthropic'],
- ['Databricks','greenhouse','databricks'],
- ['MongoDB','greenhouse','mongodb'],
- ['Snowflake','manual','https://careers.snowflake.com/us/en'],
- ['Elastic','greenhouse','elastic'],
- ['Confluent','ashby','confluent'],
- ['Nubank','ashby','nubank'],
- ['CI&T','lever','ciandt'],
- ['GitLab','greenhouse','gitlab'],
- ['Datadog','greenhouse','datadog']
-].map(([company,ats,board])=>({company,ats,board,enabled:true,default:true}));
+const DEFAULT_BOARDS = createDefaultBoards;
 const PROVIDERS = {
  openai:{model:'chat-latest',base:'https://api.openai.com'},gemini:{model:'gemini-flash-latest',base:'https://generativelanguage.googleapis.com'},deepseek:{model:'deepseek-flash',base:'https://api.deepseek.com'},kimi:{model:'kimi-k2.5',base:'https://api.moonshot.cn'},
  anthropic:{model:'claude-sonnet-5',base:'https://api.anthropic.com'},ollama:{model:'llama3.1',base:'http://localhost:11434'},'openai-compatible':{model:'gpt-4o-mini',base:'http://localhost:4000'}
@@ -63,10 +52,9 @@ async function refreshProfileFromCv(raw){
  }catch(error){if(isSessionOperationCurrent(operation)){toast('AI extraction failed: '+error.message+'. Using local extraction instead.');localParseCv(raw);}}
  finally{finishSessionOperation(operation);button.disabled=false;button.textContent='Build profile';}
 }
-function boardUrl(b){const id=encodeURIComponent(b.board.trim());switch(b.ats){case'greenhouse':return `https://boards-api.greenhouse.io/v1/boards/${id}/jobs?content=true`;case'ashby':return `https://api.ashbyhq.com/posting-api/job-board/${id}`;case'lever':return `https://api.lever.co/v0/postings/${id}?mode=json`;case'workable':return `https://apply.workable.com/api/v1/widget/accounts/${id}?details=true`;case'smartrecruiters':return `https://api.smartrecruiters.com/v1/companies/${id}/postings?limit=100&offset=0`;case'recruitee':return `https://${id}.recruitee.com/api/offers/`;case'gupy':return `https://portal.api.gupy.io/api/v1/jobs?companyId=${id}&limit=100&offset=0`;default:return '';}}
 async function fetchWithTimeout(url,options={},timeoutMs=15000){const controller=new AbortController(),externalSignal=options.signal;const abortFromCaller=()=>controller.abort(externalSignal?.reason);if(externalSignal?.aborted)abortFromCaller();else externalSignal?.addEventListener('abort',abortFromCaller,{once:true});const timer=setTimeout(()=>controller.abort(new Error('Request timed out after 15 seconds')),timeoutMs);try{return await fetch(url,{...options,signal:controller.signal});}finally{clearTimeout(timer);externalSignal?.removeEventListener('abort',abortFromCaller);}}
 async function fetchBoard(b,signal){
- const url=boardUrl(b);if(!url)throw Error('Manual source: use its external search link.');let raw=[];
+ const url=buildBoardUrl(b);if(!url)throw Error('Manual source: use its external search link.');let raw=[];
  if(b.ats==='gupy'||b.ats==='smartrecruiters'){
   for(let offset=0;offset<10000;offset+=100){
    const pageUrl=b.ats==='gupy'?'https://portal.api.gupy.io/api/v1/jobs?companyId='+encodeURIComponent(b.board)+'&limit=100&offset='+offset:'https://api.smartrecruiters.com/v1/companies/'+encodeURIComponent(b.board)+'/postings?limit=100&offset='+offset;
