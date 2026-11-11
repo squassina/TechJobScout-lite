@@ -1584,6 +1584,8 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
   font: inherit;
   font-size: 11px;
 }
+.display-filter-grid select[multiple] { min-height: 104px; padding: 5px; }
+.display-filter-grid small { color: var(--muted); font-size: 10px; font-weight: 400; }
 .display-filter-footer {
   display: flex;
   align-items: center;
