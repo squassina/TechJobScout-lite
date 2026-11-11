@@ -822,3 +822,51 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
   outline:2px solid var(--accent-bright);
   outline-offset:2px;
 }
+
+
+/* Group prompt files under a single folder entry */
+.agent-folder {
+  margin-top:4px;
+  padding-top:8px;
+  border-top:1px solid var(--border);
+}
+.agent-folder-name {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:8px 10px 5px;
+  color:var(--text);
+  font-size:12px;
+}
+.agent-folder-name .folder-icon {
+  color:var(--accent-bright);
+  font-size:12px;
+}
+.agent-folder-files {
+  display:grid;
+  gap:2px;
+  margin-left:19px;
+  padding-left:12px;
+  border-left:1px solid var(--border-strong);
+}
+.agent-file.agent-file-link {
+  display:flex;
+  align-items:center;
+  min-height:32px;
+  padding:6px 10px;
+  border:0;
+  border-radius:6px;
+  background:transparent;
+  color:var(--text-soft);
+  font-size:11px;
+}
+.agent-file.agent-file-link::before { content:none; }
+.agent-file.agent-file-link span {
+  color:inherit;
+  font:inherit;
+}
+.agent-file.agent-file-link:hover,
+.agent-file.agent-file-link.active {
+  background:var(--surface-hover);
+  color:var(--accent-bright);
+}
