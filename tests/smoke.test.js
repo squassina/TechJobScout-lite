@@ -134,3 +134,16 @@ test('Fit Score components expose job and candidate evidence for traceability',(
  assert.ok(skills.jobEvidence.includes('cloud'));
  assert.ok(skills.candidateEvidence.includes('cloud'));
 });
+
+test('location is reported as Eligibility instead of silently filtering out the job',()=>{
+ assert.doesNotMatch(app,/if\(!locationAllowed\(j\.location,currentCriteria\(\)\)\)continue/);
+ assert.match(app,/Location is assessed independently in Eligibility/);
+});
+test('remote modality is unknown unless candidate work-mode preferences are explicit',()=>{
+ const c={keywords:[],excluded_keywords:[],allowed_locations:[],excluded_locations:[]};
+ const job={title:'Cloud Architect',description:'Cloud architecture required.',location:'Remote',remote:true};
+ const unknown=scoreJob(job,c,{resume_text:'Cloud Architect with cloud experience.'});
+ const matched=scoreJob(job,c,{resume_text:'Cloud Architect with cloud experience.',work_preferences:['remote']});
+ assert.equal(unknown.eligibility.modality.status,'unknown');
+ assert.equal(matched.eligibility.modality.status,'met');
+});
