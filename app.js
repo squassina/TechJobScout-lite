@@ -14,7 +14,9 @@ const PROVIDERS = {
  anthropic:{model:'claude-sonnet-5',base:'https://api.anthropic.com'},ollama:{model:'llama3.1',base:'http://localhost:11434'},'openai-compatible':{model:'gpt-4o-mini',base:'http://localhost:4000'}
 };
 const state={cv:'',profile:{name:'',target_roles:'',summary:'',skills:[],star_stories:[]},boards:DEFAULT_BOARDS.map(x=>({...x})),jobs:[],stories:[],provider:'openai',model:PROVIDERS.openai.model,baseUrl:PROVIDERS.openai.base,keys:{},sessionKeys:{},searchErrors:[],searched:false,aiConfigured:false};
-let toastTimer;\nconst JOBS_PER_PAGE=10;\nlet currentJobsPage=1;
+let toastTimer;
+const JOBS_PER_PAGE=10;
+let currentJobsPage=1;
 function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2800)}
 function list(id){return $(id).value.split(',').map(x=>x.trim()).filter(Boolean)}
 function currentCriteria(){return {keywords:[...new Set([...list('keywords'),...(state.profile.skills||[])])],excluded_keywords:list('excludedKeywords'),allowed_locations:list('allowedLocations'),excluded_locations:list('excludedLocations'),min_score:Number($('minScore').value)}}
