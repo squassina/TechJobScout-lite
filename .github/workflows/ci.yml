@@ -25,11 +25,13 @@ jobs:
           grep -q 'type="module"' index.html
       - name: Enforce client-only persistence policy
         run: |
-          ! grep -R -nE '(/api/config|/api/scout|indexedDB|document\.cookie)' app.js src index.html
+          ! grep -R -nE '(/api/config|/api/scout|indexedDB|document\\.cookie)' app.js src index.html
           grep -q 'tjs_lite_api_keys' app.js
       - name: Install Playwright browser
         run: |
           npm install --no-save playwright
-          npx playwright install --with-deps chromium
+          # GitHub-hosted Ubuntu runners already provide the system libraries.
+          # Avoid --with-deps: it invokes apt and can fail on transient runner DNS issues.
+          npx playwright install chromium
       - name: Run end-to-end workflow test
         run: npm run test:e2e
