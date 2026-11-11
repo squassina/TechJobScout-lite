@@ -42,7 +42,7 @@ async function loadModels(){
  try{
   let url,headers={Accept:'application/json'};
   if(isLocal())url=base+'/api/tags';
-  else if(p==='gemini')url=base+'/v1beta/models?key='+encodeURIComponent(key);
+  else if(p==='gemini'){url=base+'/v1beta/models';headers['x-goog-api-key']=key;}
   else if(p==='anthropic'){url=base+'/v1/models';headers['x-api-key']=key;headers['anthropic-version']='2023-06-01';headers['anthropic-dangerous-direct-browser-access']='true';}
   else{url=base+'/v1/models';if(key)headers.Authorization='Bearer '+key;}
   const response=await fetch(url,{headers});if(!response.ok)throw new Error('HTTP '+response.status+' — verify the key, provider and browser CORS access.');
