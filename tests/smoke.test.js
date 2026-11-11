@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { words, hasTerm, safeHref } from '../src/core/text.js';
 import { locationAllowed, isLikelyRelevant, scoreJob } from '../src/jobs/matching.js';
 import { normalizeJobs, stripHtml } from '../src/ats/normalizers.js';
+import { clusterFor, extractDemands, jobKey } from '../src/jobs/analysis.js';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8'),css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 test('native ES module entrypoint',()=>{assert.match(html,/<script type="module" src="app.js"><\/script>/);assert.ok(readFileSync(new URL('../styles.css',import.meta.url),'utf8').length>1000);});
 test('text helpers normalize accents and reject unsafe URLs',()=>{assert.equal(words('Tecnologia Ágil'),'tecnologia agil');assert.equal(hasTerm('data science','Senior Data Science Lead'),true);assert.equal(safeHref('javascript:alert(1)'),'#');});
@@ -83,7 +84,7 @@ test('Fit Score breakdown preserves its total when the score is below the cap',(
 
 
 test('ATS failures are shown per company with platform and escaped diagnostic message',()=>{assert.match(html,/id="boardErrors"[^>]*aria-live="polite"/);assert.match(app,/function renderBoardErrors\(\)/);assert.match(app,/Source diagnostics/);assert.match(app,/esc\(item\.company\)/);assert.match(app,/esc\(item\.ats\)/);assert.match(app,/esc\(item\.error\|\|'Unknown error'\)/);assert.match(app,/renderBoardErrors\(\)/);});
-test('partial ATS failures remain visible while successful boards can still return jobs',()=>{assert.match(app,/state\.searchErrors\.push\(\{company:b\.company,ats:b\.ats,error:e\.message\}\)/);assert.match(app,/const settled=await Promise\.all\(targets\.map/);assert.match(app,/renderBoardErrors\(\)/);});
+test('partial ATS failures remain visible while successful boards can still return jobs',()=>{assert.match(app,/state\.searchErrors\.push\(\{company:b\.company,ats:b\.ats,error:message\}\)/);assert.match(app,/const settled=await Promise\.all\(targets\.map/);assert.match(app,/renderBoardErrors\(\)/);});
 
 test('evidence-based Fit Score has no base points and normalizes only evaluable criteria',()=>{
  const p={target_roles:'Solutions Architect',skills:['cloud','azure'],resume_text:'Senior Solutions Architect. Led cloud architecture, Azure migrations and enterprise transformation for financial services clients. MBA.'};
@@ -166,3 +167,34 @@ test('P2 workflow grids use equal desktop columns and collapse consistently on m
 
 
 test('CV upload dropzone centers icon and all prompt lines horizontally and vertically',()=>{assert.ok(css.includes('.panel .dropzone {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;'));assert.ok(css.includes('.panel .dropzone > span,\n.panel .dropzone > strong {'));assert.ok(css.includes('text-align: center;'));});
+
+
+test('job analysis module preserves career cluster classification',()=>{assert.equal(clusterFor('VP AI Transformation').name,'AI & GenAI Transformation');assert.equal(clusterFor('Cloud Platform Engineer').name,'Cloud, Data & Architecture');assert.equal(clusterFor('Product Engineering Manager').name,'Product & Engineering Leadership');assert.equal(clusterFor('Unclassified role').name,'General Technology');});
+
+test('job demand extraction keeps unique meaningful bullets and caps output at five',()=>{const description='- Build cloud platforms for enterprise customers\n- Lead architecture and delivery across teams\n- Build cloud platforms for enterprise customers\n- Own product strategy and roadmap\n- Manage stakeholder relationships\n- Drive security and governance programs\n- Short\nThis is a paragraph, not a bullet.';const demands=extractDemands(description);assert.equal(demands.length,5);assert.equal(new Set(demands).size,5);assert.ok(demands.every(item=>item.length>12));});
+
+test('job identity key uses ATS, company and stable posting identifier with URL fallback',()=>{assert.equal(jobKey({ats:'greenhouse',company:'Acme',id:'123',url:'https://example.com/123'}),'greenhouse:Acme:123');assert.equal(jobKey({ats:'lever',company:'Acme',url:'https://example.com/role'}),'lever:Acme:https://example.com/role');});
+
+
+test('hero focuses on career value instead of repeated privacy disclaimers',()=>{assert.match(html,/YOUR CAREER, YOUR NEXT MOVE/);assert.match(html,/Explore technology opportunities, assess your fit and prepare for interviews/);assert.match(html,/From search to interview/);assert.doesNotMatch(html,/Private by design|Nothing is saved as a work session|Session-only workspace/);assert.doesNotMatch(html,/id="privacyNotice"|id="noticeDismiss"/);assert.match(html,/Session & privacy|Session data/);assert.match(html,/API keys are managed separately/);});
+
+
+test('default ATS boards use verified public board slugs and avoid guessed Snowflake endpoint',()=>{const defaults=app.slice(app.indexOf('const DEFAULT_BOARDS'),app.indexOf('const PROVIDERS'));assert.match(defaults,/\['Confluent','ashby','confluent'\]/);assert.match(defaults,/\['Nubank','ashby','nubank'\]/);assert.match(defaults,/\['CI&T','lever','ciandt'\]/);assert.match(defaults,/\['GitLab','greenhouse','gitlab'\]/);assert.match(defaults,/\['Datadog','greenhouse','datadog'\]/);assert.match(defaults,/\['Snowflake','manual','https:\/\/careers\.snowflake\.com\/us\/en'\]/);assert.doesNotMatch(defaults,/\['Snowflake','greenhouse'/);assert.doesNotMatch(defaults,/\['Confluent','greenhouse'/);assert.doesNotMatch(defaults,/\['CI&T','greenhouse'/);assert.doesNotMatch(defaults,/\['GitLab','ashby'/);assert.doesNotMatch(defaults,/\['Datadog','lever'/);});
+
+test('ATS search diagnostics distinguish invalid board slugs from general network and CORS failures',()=>{assert.match(app,/HTTP 404 — board not found\. Verify the ATS and public board slug\./);assert.match(app,/HTTP 403 — access denied by the source\./);assert.match(app,/invalid board slug, access restriction or network\/CORS issue/);});
+
+
+test('job board rows expose a compact actions menu with edit and confirmed remove actions',()=>{assert.match(app,/class="board-actions"/);assert.match(app,/data-board-edit=/);assert.match(app,/Edit job board/);assert.match(app,/data-board-remove=/);assert.match(app,/confirm\('Remove '\+board\.company\+' from configured job boards\?'\)/);assert.match(css,/\.board-action-menu/);assert.match(css,/\.board-actions > summary/);});
+
+test('job board editor dialog edits company, ATS and slug without changing enabled/default state',()=>{assert.match(html,/<dialog id="editBoardDialog"/);for(const id of ['editCompany','editAts','editBoardId','saveEditedBoard','cancelEditBoard'])assert.match(html,new RegExp('id="'+id+'"'));assert.match(app,/function editBoardDialog\(index\)/);assert.match(app,/function saveEditedBoard\(\)/);assert.match(app,/state\.boards\[index\]=\{\.\.\.state\.boards\[index\],company,ats,board,careersUrl:careersUrl\|\|undefined\}/);assert.match(app,/This board is already configured/);assert.match(app,/Gupy requires a numeric company ID/);assert.match(app,/full HTTPS careers or search URL/);});
+
+
+test('each workflow step has consistent previous/next footer navigation',()=>{const expected=[['setup',null,'profile'],['profile','setup','search'],['search','profile','star'],['star','search','agent'],['agent','star',null]];for(const [step,previous,next] of expected){const start=html.indexOf('id="panel-'+step+'"'),end=html.indexOf('</section>',start),section=html.slice(start,end);assert.match(section,/class="step-navigation"/);if(previous)assert.match(section,new RegExp('data-step-goto="'+previous+'"'));else assert.match(section,/class="step-navigation-end"|<span><\/span>/);if(next)assert.match(section,new RegExp('data-step-goto="'+next+'"'));else assert.match(section,/Workspace complete/);}assert.match(app,/data-step-goto/);assert.match(css,/\.step-navigation/);});
+
+
+test('every configured board renders a careers link using custom URL or ATS public board URL',()=>{assert.match(app,/function boardCareersUrl\(board\)/);for(const host of ['job-boards.greenhouse.io','jobs.ashbyhq.com','jobs.lever.co','apply.workable.com','careers.smartrecruiters.com'])assert.ok(app.includes(host));assert.match(app,/class="board-careers-link"/);assert.match(app,/boardCareersUrl\(b\)/);assert.match(app,/rel="noopener noreferrer"/);});
+
+test('users can add and edit optional HTTPS careers URLs for custom boards',()=>{for(const id of ['newCareersUrl','editCareersUrl'])assert.match(html,new RegExp('id="'+id+'"'));assert.match(app,/careersUrl:careersUrl\|\|undefined/);assert.match(app,/Careers page must be a full HTTPS URL/);});
+
+
+test('workflow navigation uses destination-specific labels and has no duplicate inline continue buttons',()=>{for(const label of ['Continue to candidate profile →','Continue to job search →','Continue to STAR prep →','Continue to local agent →','← Back to setup','← Back to candidate profile','← Back to job search','← Back to STAR prep','Workspace complete'])assert.ok(html.includes(label),label);assert.doesNotMatch(html,/Next step →|← Previous step/);assert.doesNotMatch(html,/<div class="row end"><button class="btn btn-primary" data-goto="(?:profile|search|agent)">Continue to/);});
