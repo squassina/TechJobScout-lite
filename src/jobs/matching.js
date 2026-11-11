@@ -1,38 +1,42 @@
 import { words, hasTerm } from '../core/text.js';
-export function locationAllowed(location,c) {
- if(!location)return true;
- const s=words(location); if(c.excluded_locations.some(x=>hasTerm(x,s)))return false;
- if(!c.allowed_locations.length)return true;
- const allowed=c.allowed_locations.filter(x=>!['remote','anywhere','worldwide','global'].includes(words(x)));
- const remote=c.allowed_locations.some(x=>['remote','anywhere','worldwide','global'].includes(words(x)));
- return (remote&&['remote','worldwide','global'].some(x=>hasTerm(x,s)))||allowed.some(x=>hasTerm(x,s));
-}
-export function isLikelyRelevant(j,c,p) {
- const roles=String(p.target_roles||'').split(/[|,;\n]/).map(x=>x.trim()).filter(Boolean);
- return c.keywords.some(x=>hasTerm(x,j.title)||hasTerm(x,j.description))||(p.skills||[]).some(x=>hasTerm(x,j.title)||hasTerm(x,j.description))||roles.some(x=>hasTerm(x,j.title)||hasTerm(x,j.description));
-}
-export function scoreJob(j,c,p) {
- const title=words(j.title),desc=words(j.description),loc=words(j.location);
- if(c.excluded_keywords.some(x=>hasTerm(x,title)))return {score:0,components:[{factor:'Excluded title',points:0,detail:'Excluded keyword in title'}],matched:[]};
- let score=40;const components=[{factor:'Base',points:40,detail:'Starting score'}];
- const executive=['director','head','vp','vice president','chief','field cto','cto'],lead=['principal','lead','strategist','staff','manager','architect'];
- const ex=executive.find(x=>hasTerm(x,title)),sen=lead.find(x=>hasTerm(x,title));
- if(ex){score+=25;components.push({factor:'Seniority',points:25,detail:'Executive title ('+ex+')'});}else if(sen){score+=15;components.push({factor:'Seniority',points:15,detail:'Senior / lead title ('+sen+')'});}
- const roles=String(p.target_roles||'').split(/[|,;\n]/).map(x=>x.trim()).filter(Boolean),roleHits=roles.filter(x=>hasTerm(x,title));
- if(roleHits.length){score+=15;components.push({factor:'Target role alignment',points:15,detail:roleHits.join(', ')});}
- const titleHits=c.keywords.filter(x=>hasTerm(x,title)),descHits=c.keywords.filter(x=>!titleHits.includes(x)&&hasTerm(x,desc));
- if(titleHits.length){const points=Math.min(20,titleHits.length*10);score+=points;components.push({factor:'Title alignment',points,detail:titleHits.join(', ')});}
- if(descHits.length){const points=Math.min(15,descHits.length*3);score+=points;components.push({factor:'Description alignment',points,detail:descHits.slice(0,12).join(', ')});}
- const skills=(p.skills||[]).filter(x=>hasTerm(x,title+' '+desc));
- if(skills.length){const points=Math.min(10,skills.length*2);score+=points;components.push({factor:'Candidate skills',points,detail:skills.slice(0,10).join(', ')});}
- if(j.remote===true||['remote','brazil','brasil','latam','americas','global','worldwide'].some(x=>hasTerm(x,loc))){score+=15;components.push({factor:'Location',points:15,detail:'Remote or preferred region'});}else if(['united states','us'].some(x=>hasTerm(x,loc))){score+=10;components.push({factor:'Location',points:10,detail:'Potentially compatible region'});}
- const cappedScore=Math.min(100,score),rawTotal=components.reduce((sum,item)=>sum+item.points,0);
- if(rawTotal>cappedScore&&rawTotal>0){
-  const scaled=components.map(item=>({...item,points:Math.floor(item.points*cappedScore/rawTotal)}));
-  let remainder=cappedScore-scaled.reduce((sum,item)=>sum+item.points,0);
-  const order=components.map((item,index)=>({index,weight:item.points*cappedScore/rawTotal-Math.floor(item.points*cappedScore/rawTotal)})).sort((a,b)=>b.weight-a.weight);
-  for(let i=0;remainder>0;i++,remainder--)scaled[order[i%order.length].index].points++;
-  return {score:cappedScore,components:scaled,matched:[...titleHits,...descHits,...roleHits,...skills]};
+
+const CRITERIA = [
+ {id:'skills',factor:'Technical and functional skills',weight:25,terms:['artificial intelligence','generative ai','machine learning','llm','cloud','azure','aws','gcp','google cloud','data analytics','data engineering','data science','python','javascript','typescript','java','react','node.js','sql','kubernetes','docker','devops','cybersecurity','security','architecture','enterprise architecture','solution architecture','product management','product strategy','agile','scrum','salesforce','sap','erp','crm','leadership','strategy','transformation','presales','pre-sales','customer success','software engineering','platform engineering','observability','networking','infrastructure','finops','governance','risk management','stakeholder management','project management','business development','consulting','design','ux','marketing','finance','operations','hr','people management']},
+ {id:'responsibilities',factor:'Experience and responsibilities',weight:25,terms:['strategy','architecture','design','implementation','delivery','manage','management','leadership','lead','build','develop','deploy','operate','transformation','governance','stakeholder','consulting','advisory','roadmap','budget','portfolio','team','customer','client','presales','sales','engineering','ownership','execution','optimization','migration','modernization','integration','mentoring','coaching','hiring']},
+ {id:'role',factor:'Role and function',weight:15,terms:['architect','strategist','engineer','developer','manager','director','consultant','analyst','scientist','product manager','technical lead','cto','vp','vice president','head of','principal','staff','account executive','sales engineer','customer success']},
+ {id:'seniority',factor:'Seniority',weight:15,terms:['intern','junior','entry level','associate','mid level','mid-level','senior','staff','principal','lead','manager','director','head','vice president','vp','chief','cto']},
+ {id:'domain',factor:'Industry and business context',weight:10,terms:['financial services','banking','insurance','healthcare','retail','telecommunications','manufacturing','government','public sector','education','technology','saas','enterprise','b2b','b2c','fintech','e-commerce']},
+ {id:'education',factor:'Education and certifications',weight:10,terms:['bachelor','bachelors','degree','master','mba','phd','doctorate','certification','certified','aws certified','azure certified','professional certification','computer science','engineering degree']}
+];
+const LEVELS=['intern','junior','entry level','associate','mid level','mid-level','senior','staff','principal','lead','manager','director','head','vice president','vp','chief','cto'];
+function uniqueTerms(terms,text){return [...new Set(terms.filter(term=>hasTerm(term,text)))];}
+function candidateText(profile){return [profile.resume_text,profile.summary,profile.professional_summary,profile.target_roles,...(profile.skills||[]),...(profile.star_stories||[]).flatMap(s=>[s.title,s.situation,s.task,s.action,s.result])].filter(Boolean).join(' ');}
+function assessCriterion(def,jobText,candidate,profile){
+ const jobTerms=uniqueTerms(def.terms,jobText);
+ if(!jobTerms.length)return {id:def.id,factor:def.factor,weight:def.weight,status:'unknown',adherence:null,points:null,jobEvidence:[],candidateEvidence:[],detail:'The job posting does not provide enough information to assess this criterion.'};
+ if(!candidate.trim())return {id:def.id,factor:def.factor,weight:def.weight,status:'unknown',adherence:null,points:null,jobEvidence:jobTerms,candidateEvidence:[],detail:'Candidate profile is not available.'};
+ let evidence=[];
+ if(def.id==='seniority'){
+  const jobLevels=jobTerms.map(x=>LEVELS.indexOf(x)).filter(x=>x>=0),candidateLevels=uniqueTerms(LEVELS,candidate).map(x=>LEVELS.indexOf(x)).filter(x=>x>=0);
+  if(jobLevels.length&&candidateLevels.length){const target=Math.max(...jobLevels),actual=Math.max(...candidateLevels),distance=Math.abs(target-actual),adherence=distance===0?1:distance===1?.75:distance===2?.45:distance===3?.2:0;evidence=uniqueTerms(LEVELS,candidate);return {id:def.id,factor:def.factor,weight:def.weight,status:'evaluated',adherence,points:def.weight*adherence,jobEvidence:jobTerms,candidateEvidence:evidence,detail:adherence===1?'Seniority level aligns with documented career evidence.':adherence>0?'Partial seniority alignment; review scope and responsibilities.':'Documented seniority does not match the requested level.'};}
  }
- return {score:cappedScore,components,matched:[...titleHits,...descHits,...roleHits,...skills]};
+ if(def.id==='role'){const roleTerms=[...(profile.target_roles||'').split(/[|,;\n]/),...def.terms].map(x=>x.trim()).filter(Boolean);evidence=uniqueTerms(roleTerms,candidate).filter(x=>jobTerms.some(j=>hasTerm(j,x)||hasTerm(x,j)));}
+ else evidence=jobTerms.filter(term=>hasTerm(term,candidate));
+ const adherence=jobTerms.length?evidence.length/jobTerms.length:0;
+ return {id:def.id,factor:def.factor,weight:def.weight,status:'evaluated',adherence,points:def.weight*adherence,jobEvidence:jobTerms,candidateEvidence:evidence,detail:evidence.length?evidence.join(', '):'No matching evidence was found in the candidate profile.'};
+}
+export function locationAllowed(location,c){if(!location)return true;const s=words(location);if(c.excluded_locations.some(x=>hasTerm(x,s)))return false;if(!c.allowed_locations.length)return true;const allowed=c.allowed_locations.filter(x=>!['remote','anywhere','worldwide','global'].includes(words(x))),remote=c.allowed_locations.some(x=>['remote','anywhere','worldwide','global'].includes(words(x)));return (remote&&['remote','worldwide','global'].some(x=>hasTerm(x,s)))||allowed.some(x=>hasTerm(x,s));}
+export function isLikelyRelevant(j,c,p){const roles=String(p.target_roles||'').split(/[|,;\n]/).map(x=>x.trim()).filter(Boolean);return c.keywords.some(x=>hasTerm(x,j.title)||hasTerm(x,j.description))||(p.skills||[]).some(x=>hasTerm(x,j.title)||hasTerm(x,j.description))||roles.some(x=>hasTerm(x,j.title)||hasTerm(x,j.description));}
+export function assessEligibility(job,criteria,profile){
+ const preferred=criteria.allowed_locations||[],excluded=criteria.excluded_locations||[];let location='unknown';
+ if(job.location&&excluded.some(x=>hasTerm(x,job.location)))location='not_met';else if(job.location&&preferred.length)location=locationAllowed(job.location,criteria)?'met':'not_met';
+ const description=job.description||'',authorizationRequired=['work authorization','right to work','visa sponsorship','sponsorship'].some(x=>hasTerm(x,description)),languageRequired=['fluent english','english proficiency','portuguese proficiency','english required','language requirement'].some(x=>hasTerm(x,description));
+ return {location:{status:location,detail:location==='unknown'?'Candidate location preferences are not sufficiently specified.':location==='met'?'Posting location matches configured preferences.':'Posting location conflicts with configured preferences.'},workAuthorization:{status:'unknown',detail:authorizationRequired?'The posting specifies a work-authorization condition; candidate eligibility is not confirmed.':'No explicit work-authorization requirement was identified.'},language:{status:'unknown',detail:languageRequired?'The posting specifies a language condition; candidate proficiency is not confirmed.':'No explicit language requirement was identified.'},modality:{status:job.remote===true?'met':'unknown',detail:job.remote===true?'The posting is identified as remote.':'Work modality is not confirmed.'}};
+}
+export function scoreJob(j,c,p){
+ const title=words(j.title),jobText=title+' '+words(j.description||'');
+ if(c.excluded_keywords.some(x=>hasTerm(x,title)))return {score:0,coverage:0,components:[{factor:'Excluded title',points:0,detail:'Excluded keyword in title',status:'evaluated'}],matched:[],eligibility:assessEligibility(j,c,p)};
+ const candidate=candidateText(p),assessments=CRITERIA.map(def=>assessCriterion(def,jobText,candidate,p)),evaluable=assessments.filter(x=>x.status==='evaluated'),evaluableWeight=evaluable.reduce((sum,x)=>sum+x.weight,0),coverage=evaluableWeight,score=evaluableWeight?evaluable.reduce((sum,x)=>sum+x.points,0)/evaluableWeight*100:0;
+ const components=assessments.map(x=>({...x,points:x.status==='evaluated'?Math.round(x.points*100)/100:null,adherence:x.adherence===null?null:Math.round(x.adherence*1000)/10}));
+ return {score:Math.round(score*10)/10,coverage,components,matched:[...new Set(assessments.flatMap(x=>x.candidateEvidence))],eligibility:assessEligibility(j,c,p)};
 }
