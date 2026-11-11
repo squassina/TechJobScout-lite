@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { words, hasTerm, safeHref } from '../src/core/text.js';
 import { locationAllowed, isLikelyRelevant, scoreJob } from '../src/jobs/matching.js';
 import { normalizeJobs, stripHtml } from '../src/ats/normalizers.js';
+import { clusterFor, extractDemands, jobKey } from '../src/jobs/analysis.js';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),app=readFileSync(new URL('../app.js',import.meta.url),'utf8'),css=readFileSync(new URL('../styles.css',import.meta.url),'utf8');
 test('native ES module entrypoint',()=>{assert.match(html,/<script type="module" src="app.js"><\/script>/);assert.ok(readFileSync(new URL('../styles.css',import.meta.url),'utf8').length>1000);});
 test('text helpers normalize accents and reject unsafe URLs',()=>{assert.equal(words('Tecnologia Ágil'),'tecnologia agil');assert.equal(hasTerm('data science','Senior Data Science Lead'),true);assert.equal(safeHref('javascript:alert(1)'),'#');});
@@ -166,3 +167,10 @@ test('P2 workflow grids use equal desktop columns and collapse consistently on m
 
 
 test('CV upload dropzone centers icon and all prompt lines horizontally and vertically',()=>{assert.ok(css.includes('.panel .dropzone {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;'));assert.ok(css.includes('.panel .dropzone > span,\n.panel .dropzone > strong {'));assert.ok(css.includes('text-align: center;'));});
+
+
+test('job analysis module preserves career cluster classification',()=>{assert.equal(clusterFor('VP AI Transformation').name,'AI & GenAI Transformation');assert.equal(clusterFor('Cloud Solutions Architect').name,'Cloud, Data & Architecture');assert.equal(clusterFor('Product Engineering Manager').name,'Product & Engineering Leadership');assert.equal(clusterFor('Unclassified role').name,'General Technology');});
+
+test('job demand extraction keeps unique meaningful bullets and caps output at five',()=>{const description='- Build cloud platforms for enterprise customers\n- Lead architecture and delivery across teams\n- Build cloud platforms for enterprise customers\n- Own product strategy and roadmap\n- Manage stakeholder relationships\n- Drive security and governance programs\n- Short\nThis is a paragraph, not a bullet.';const demands=extractDemands(description);assert.equal(demands.length,5);assert.equal(new Set(demands).size,5);assert.ok(demands.every(item=>item.length>12));});
+
+test('job identity key uses ATS, company and stable posting identifier with URL fallback',()=>{assert.equal(jobKey({ats:'greenhouse',company:'Acme',id:'123',url:'https://example.com/123'}),'greenhouse:Acme:123');assert.equal(jobKey({ats:'lever',company:'Acme',url:'https://example.com/role'}),'lever:Acme:https://example.com/role');});
