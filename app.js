@@ -148,7 +148,7 @@ function renderStories(){
  box.querySelectorAll('[data-story-delete]').forEach(el=>el.onclick=()=>{state.stories.splice(+el.dataset.storyDelete,1);renderStories();});
 }
 const AI_REQUEST_TIMEOUT_MS=45000;
-async function fetchProviderResponse(url,options){let response;for(let attempt=0;attempt<2;attempt++){response=await fetch(url,options);if(![429,502,503,504].includes(response.status)||attempt===1)return response;const retryAfter=Number(response.headers.get('retry-after'));await new Promise(resolve=>setTimeout(resolve,Number.isFinite(retryAfter)&&retryAfter>0?Math.min(retryAfter*1000,4000):700));}return response;}
+async function fetchProviderResponse(url,options){let response;for(let attempt=0;attempt<2;attempt++){response=await fetch(url,options);if(response.status!==429||attempt===1)return response;const retryAfter=Number(response.headers.get('retry-after'));await new Promise(resolve=>setTimeout(resolve,Number.isFinite(retryAfter)&&retryAfter>0?Math.min(retryAfter*1000,4000):700));}return response;}
 async function aiRequest(system,user,{signal}={}){
  const provider=state.provider,model=state.model,base=state.baseUrl.replace(/\/$/,''),key=state.sessionKeys[provider]||state.keys[provider]||'';
  if(!['ollama','openai-compatible'].includes(provider)&&!key)throw Error('Add an API key in API settings first.');
