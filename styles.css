@@ -1446,3 +1446,39 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
 
 .skip-link { position: absolute; z-index: 20; top: 8px; left: 8px; padding: 10px 14px; transform: translateY(-160%); border: 1px solid var(--accent); border-radius: var(--radius-sm); background: var(--surface-raised); color: var(--text); }
 .skip-link:focus { transform: translateY(0); }
+
+
+/* Consistent breathing room and wrapping for every multi-action group */
+.job-actions {
+  gap: 10px;
+}
+.story-actions {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pagination-controls {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dialog-body > .row {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.step-navigation {
+  gap: 12px;
+}
+@media (max-width: 520px) {
+  .story-actions {
+    justify-content: flex-start;
+  }
+  .dialog-body > .row > .btn {
+    flex: 1 1 140px;
+  }
+}
