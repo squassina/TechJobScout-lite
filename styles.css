@@ -651,3 +651,61 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
   .setup-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
   .model-actions { align-items: flex-start; flex-direction: column; }
 }
+
+
+/* Final AI setup form layout — keep checkbox independent from field grid. */
+#panel-setup .setup-card > .setup-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+#panel-setup .setup-card > .setup-grid > label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+#panel-setup .setup-card > .setup-grid > label > input:not([type="checkbox"]),
+#panel-setup .setup-card > .setup-grid > label > select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+}
+#panel-setup .setup-card > .inline-check.remember-key {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  gap: 9px;
+  margin: 9px 0 2px;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+#panel-setup .setup-card > .inline-check.remember-key input[type="checkbox"] {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+#panel-setup .setup-card > .callout { margin-top: 16px; }
+#panel-setup .model-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+#panel-setup .model-actions small { flex: 1 1 240px; }
+#panel-setup .model-actions .btn { flex: 0 0 auto; }
+@media (max-width: 560px) {
+  #panel-setup .model-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
