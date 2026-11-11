@@ -1406,3 +1406,39 @@ dialog::backdrop { background: rgba(0, 15, 10, .82); backdrop-filter: blur(3px);
   background: var(--surface-hover);
   color: var(--text);
 }
+
+
+/* Clear in-progress feedback for the LLM connection test */
+.llm-test-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 174px;
+  transition: opacity .18s ease, filter .18s ease;
+}
+.llm-test-button:disabled,
+.llm-test-button.is-loading {
+  cursor: wait;
+  opacity: .78;
+  filter: saturate(.78);
+}
+.button-spinner {
+  display: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+}
+.llm-test-button.is-loading .button-spinner {
+  display: inline-block;
+  animation: llm-button-spin .7s linear infinite;
+}
+@keyframes llm-button-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .llm-test-button.is-loading .button-spinner { animation-duration: 1.8s; }
+}
